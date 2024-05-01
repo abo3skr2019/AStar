@@ -15,7 +15,7 @@ class Node():
     def __eq__(self, other):
         return self.position == other.position
 
-def visualize_maze(maze, path):
+def visualize_maze(maze, path, expanded_nodes, obstacles):
     """Visualizes the maze and the path"""
 
     # Create a 2D array to represent the maze
@@ -28,9 +28,16 @@ def visualize_maze(maze, path):
     # Mark the start and end nodes
     maze_vis[path[0][0]][path[0][1]] = 3
     maze_vis[path[-1][0]][path[-1][1]] = 4
+        # Mark the expanded nodes on the maze
+    for node in expanded_nodes:
+        maze_vis[node[0]][node[1]] = 3
+
+    # Mark the obstacles on the maze
+    for node in obstacles:
+        maze_vis[node[0]][node[1]] = 4
 
     # Create a color map for the maze
-    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'blue', 'green', 'red'])
+    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'blue', 'green', 'red', 'purple', 'yellow'])
 
     # Create a figure and axes
     fig, ax = plt.subplots()
@@ -39,11 +46,10 @@ def visualize_maze(maze, path):
     im = ax.imshow(maze_vis, cmap=cmap)
 
     # Create a colorbar
-    cbar = fig.colorbar(im, ax=ax, ticks=[0, 1, 2, 3, 4])
+    cbar = fig.colorbar(im, ax=ax, ticks=[0, 1, 2, 3, 4, 5, 6])
 
     # Set the colorbar labels
-    cbar.ax.set_yticklabels(['Empty', 'Obstacle', 'Path', 'Start', 'End'])
-
+    cbar.ax.set_yticklabels(['Empty', 'Obstacle', 'Path', 'Start', 'End', 'Expanded', 'Obstacles'])
     # Set the title and labels
     ax.set_title('Maze')
     ax.set_xlabel('X')
@@ -51,7 +57,7 @@ def visualize_maze(maze, path):
 
     # Show the plot
     plt.show()
-    
+
 def astar(maze, start, end):
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
@@ -64,6 +70,8 @@ def astar(maze, start, end):
     # Initialize both open and closed list
     open_list = []
     closed_list = []
+    expanded_nodes = []
+    obstacles = []
 
     # Add the start node
     open_list.append(start_node)
@@ -82,6 +90,7 @@ def astar(maze, start, end):
         # Pop current off open list, add to closed list
         open_list.pop(current_index)
         closed_list.append(current_node)
+        expanded_nodes.append(current_node.position)
 
         # Found the goal
         if current_node == end_node:
@@ -105,6 +114,7 @@ def astar(maze, start, end):
 
             # Make sure walkable terrain
             if maze[node_position[0]][node_position[1]] != 0:
+                obstacles.append(node_position)
                 continue
 
             # Create new node
@@ -133,6 +143,8 @@ def astar(maze, start, end):
 
             # Add the child to the open list
             open_list.append(child)
+    return path[::-1], expanded_nodes, obstacles
+
 
 
 def generate_maze(size, obstacle_density):
@@ -160,9 +172,9 @@ def main():
     end = (9,9)
 
 
-    path = astar(maze, start, end)
+    path, expanded_nodes, obstacles = astar(maze, start, end)
     print(path)
-    visualize_maze(maze, path)
+    visualize_maze(maze, path, expanded_nodes, obstacles)
 
 if __name__ == '__main__':
     main()
