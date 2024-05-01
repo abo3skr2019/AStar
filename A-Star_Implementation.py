@@ -99,8 +99,7 @@ def astar(maze, start, end):
             while current is not None:
                 path.append(current.position)
                 current = current.parent
-            return path[::-1] # Return reversed path
-
+            return path[::-1], expanded_nodes, obstacles  # Return reversed path, expanded_nodes, and obstacles
         # Generate children
         children = []
         for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
