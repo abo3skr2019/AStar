@@ -25,16 +25,17 @@ def visualize_maze(maze, path, expanded_nodes, obstacles):
     for node in path:
         maze_vis[node[0]][node[1]] = 2
 
-    # Mark the start and end nodes
-    maze_vis[path[0][0]][path[0][1]] = 3
-    maze_vis[path[-1][0]][path[-1][1]] = 4
-        # Mark the expanded nodes on the maze
+    # Mark the expanded nodes on the maze
     for node in expanded_nodes:
-        maze_vis[node[0]][node[1]] = 3
+        maze_vis[node[0]][node[1]] = 5
 
     # Mark the obstacles on the maze
     for node in obstacles:
-        maze_vis[node[0]][node[1]] = 4
+        maze_vis[node[0]][node[1]] = 1
+
+    # Mark the start and end nodes
+    maze_vis[path[0][0]][path[0][1]] = 3
+    maze_vis[path[-1][0]][path[-1][1]] = 4
 
     # Create a color map for the maze
     cmap = plt.cm.colors.ListedColormap(['white', 'black', 'blue', 'green', 'red', 'purple', 'yellow'])
@@ -50,6 +51,7 @@ def visualize_maze(maze, path, expanded_nodes, obstacles):
 
     # Set the colorbar labels
     cbar.ax.set_yticklabels(['Empty', 'Obstacle', 'Path', 'Start', 'End', 'Expanded', 'Obstacles'])
+
     # Set the title and labels
     ax.set_title('Maze')
     ax.set_xlabel('X')
@@ -57,7 +59,6 @@ def visualize_maze(maze, path, expanded_nodes, obstacles):
 
     # Show the plot
     plt.show()
-
 def astar(maze, start, end):
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
