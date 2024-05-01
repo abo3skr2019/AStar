@@ -36,11 +36,22 @@ def visualize_maze(maze, path):
     fig, ax = plt.subplots()
 
     # Display the maze
-    ax.imshow(maze_vis, cmap=cmap)
+    im = ax.imshow(maze_vis, cmap=cmap)
+
+    # Create a colorbar
+    cbar = fig.colorbar(im, ax=ax, ticks=[0, 1, 2, 3, 4])
+
+    # Set the colorbar labels
+    cbar.ax.set_yticklabels(['Empty', 'Obstacle', 'Path', 'Start', 'End'])
+
+    # Set the title and labels
+    ax.set_title('Maze')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
 
     # Show the plot
     plt.show()
-
+    
 def astar(maze, start, end):
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
