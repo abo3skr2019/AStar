@@ -1,4 +1,5 @@
 import random
+import matplotlib.pyplot as plt
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -14,6 +15,31 @@ class Node():
     def __eq__(self, other):
         return self.position == other.position
 
+def visualize_maze(maze, path):
+    """Visualizes the maze and the path"""
+
+    # Create a 2D array to represent the maze
+    maze_vis = [[0 for _ in range(len(maze[0]))] for _ in range(len(maze))]
+
+    # Mark the path on the maze
+    for node in path:
+        maze_vis[node[0]][node[1]] = 2
+
+    # Mark the start and end nodes
+    maze_vis[path[0][0]][path[0][1]] = 3
+    maze_vis[path[-1][0]][path[-1][1]] = 4
+
+    # Create a color map for the maze
+    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'blue', 'green', 'red'])
+
+    # Create a figure and axes
+    fig, ax = plt.subplots()
+
+    # Display the maze
+    ax.imshow(maze_vis, cmap=cmap)
+
+    # Show the plot
+    plt.show()
 
 def astar(maze, start, end):
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
@@ -120,11 +146,12 @@ def main():
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
     start = (0, 0)
-    end = (7, 6)
+    end = (9,9)
+
 
     path = astar(maze, start, end)
     print(path)
-
+    visualize_maze(maze, path)
 
 if __name__ == '__main__':
     main()
