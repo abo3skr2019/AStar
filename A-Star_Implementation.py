@@ -15,11 +15,8 @@ class Node():
     def __eq__(self, other):
         return self.position == other.position
 
-def visualize_maze(maze, path, expanded_nodes, obstacles):
-    """Visualizes the maze and the path"""
-
     # Create a 2D array to represent the maze
-def visualize_maze(maze, path, expanded_nodes, obstacles):
+def visualize_maze(maze, path, expanded_nodes):
     """Visualizes the maze and the path"""
 
     # Create a 2D array to represent the maze
@@ -30,8 +27,10 @@ def visualize_maze(maze, path, expanded_nodes, obstacles):
         maze_vis[node[0]][node[1]] = 4
 
     # Mark the obstacles on the maze
-    for node in obstacles:
-        maze_vis[node[0]][node[1]] = 1
+    for i in range(len(maze)):
+        for j in range(len(maze[0])):
+            if maze[i][j] == 1:
+                maze_vis[i][j] = 1
 
     # Mark the start and end nodes
     maze_vis[path[0][0]][path[0][1]] = 3  # Start node is now green
@@ -91,8 +90,6 @@ def astar(maze, start, end):
     open_list = []
     closed_list = []
     expanded_nodes = []
-    obstacles = []
-
     # Add the start node
     open_list.append(start_node)
 
@@ -119,7 +116,7 @@ def astar(maze, start, end):
             while current is not None:
                 path.append(current.position)
                 current = current.parent
-            return path[::-1], expanded_nodes, obstacles  # Return reversed path, expanded_nodes, and obstacles
+            return path[::-1], expanded_nodes  # Return reversed path, expanded_nodes
         # Generate children
         children = []
         for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
@@ -133,7 +130,6 @@ def astar(maze, start, end):
 
             # Make sure walkable terrain
             if maze[node_position[0]][node_position[1]] != 0:
-                obstacles.append(node_position)
                 continue
 
             # Create new node
@@ -162,7 +158,7 @@ def astar(maze, start, end):
 
             # Add the child to the open list
             open_list.append(child)
-    return path[::-1], expanded_nodes, obstacles
+    return path[::-1], expanded_nodes
 
 
 
@@ -191,9 +187,12 @@ def main():
     end = (9,9)
 
 
-    path, expanded_nodes, obstacles = astar(maze, start, end)
+    path, expanded_nodes = astar(maze, start, end)
     print(path)
-    visualize_maze(maze, path, expanded_nodes, obstacles)
+    if path == None:
+        print("No path found")
+    else:
+        visualize_maze(maze, path, expanded_nodes)
 
 if __name__ == '__main__':
     main()
