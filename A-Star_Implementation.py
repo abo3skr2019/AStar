@@ -1,3 +1,4 @@
+import random
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -96,6 +97,14 @@ def astar(maze, start, end):
             # Add the child to the open list
             open_list.append(child)
 
+
+def generate_maze(size, obstacle_density):
+    maze = [[0 for _ in range(size)] for _ in range(size)]
+    for i in range(size):
+        for j in range(size):
+            if random.uniform(0, 1) < obstacle_density:
+                maze[i][j] = 1
+    return maze
 
 def main():
 
