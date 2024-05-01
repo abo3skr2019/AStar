@@ -19,26 +19,26 @@ def visualize_maze(maze, path, expanded_nodes, obstacles):
     """Visualizes the maze and the path"""
 
     # Create a 2D array to represent the maze
-    maze_vis = [[0 for _ in range(len(maze[0]))] for _ in range(len(maze))]
+def visualize_maze(maze, path, expanded_nodes, obstacles):
+    """Visualizes the maze and the path"""
 
-    # Mark the path on the maze
-    for node in path:
-        maze_vis[node[0]][node[1]] = 2
+    # Create a 2D array to represent the maze
+    maze_vis = [[0 for _ in range(len(maze[0]))] for _ in range(len(maze))]
 
     # Mark the expanded nodes on the maze
     for node in expanded_nodes:
-        maze_vis[node[0]][node[1]] = 5
+        maze_vis[node[0]][node[1]] = 4
 
     # Mark the obstacles on the maze
     for node in obstacles:
         maze_vis[node[0]][node[1]] = 1
 
     # Mark the start and end nodes
-    maze_vis[path[0][0]][path[0][1]] = 3
-    maze_vis[path[-1][0]][path[-1][1]] = 4
+    maze_vis[path[0][0]][path[0][1]] = 3  # Start node is now green
+    maze_vis[path[-1][0]][path[-1][1]] = 2  # End node is now purple
 
     # Create a color map for the maze
-    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'blue', 'green', 'red', 'purple', 'yellow'])
+    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'purple', 'green', 'grey'])  # Changed the colors
 
     # Create a figure and axes
     fig, ax = plt.subplots()
@@ -46,19 +46,38 @@ def visualize_maze(maze, path, expanded_nodes, obstacles):
     # Display the maze
     im = ax.imshow(maze_vis, cmap=cmap)
 
+    # Draw the path on top of the maze
+    path_x = [node[1] for node in path]
+    path_y = [node[0] for node in path]
+    ax.plot(path_x, path_y, color='blue', linewidth=2)  # Path is blue
+
     # Create a colorbar
-    cbar = fig.colorbar(im, ax=ax, ticks=[0, 1, 2, 3, 4, 5, 6])
+    cbar = fig.colorbar(im, ax=ax, ticks=[0, 1, 2, 3, 4])
 
     # Set the colorbar labels
-    cbar.ax.set_yticklabels(['Empty', 'Obstacle', 'Path', 'Start', 'End', 'Expanded', 'Obstacles'])
+    cbar.ax.set_yticklabels(['Empty', 'Obstacle', 'End', 'Start', 'Expanded'])  # Changed the labels
 
     # Set the title and labels
     ax.set_title('Maze')
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
 
+    ax.grid(True, which='both', color='k', linewidth=1)
+
+    x_ticks = [x + 0.5 for x in range(len(maze[0]))]
+    y_ticks = [y + 0.5 for y in range(len(maze))]
+    ax.set_xticks(x_ticks)
+    ax.set_yticks(y_ticks)
+
+    # Set the tick labels
+    ax.set_xticklabels(range(len(maze[0])))
+    ax.set_yticklabels(range(len(maze)))
+    ax.invert_yaxis()
+    # Set the aspect ratio to be equal so the grid cells are square
+    ax.set_aspect('equal')
+
     # Show the plot
-    plt.show()
+    plt.show()        
 def astar(maze, start, end):
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
@@ -162,7 +181,7 @@ def main():
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
