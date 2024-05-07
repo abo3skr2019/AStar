@@ -107,10 +107,12 @@ def astar(maze, start, end):
         # Pop current off open list, add to closed list
         open_list.pop(current_index)
         closed_list.append(current_node)
+        print(f"Current Node {current_node.position} added to Expanded Node List\n")
+        print(f"H(n) = {current_node.h} , g(n) = {current_node.g} , F(n) = {current_node.f} \n")
         expanded_nodes.append(current_node.position)
 
         # Found the goal
-        if current_node == end_node:
+        if current_node.position == end_node.position:
             path = []
             current = current_node
             while current is not None:
@@ -127,9 +129,14 @@ def astar(maze, start, end):
             # Make sure within range
             if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
                 continue
+            # Check if node is in the closed list
+            if any(closed_node.position == node_position for closed_node in closed_list):
+                print(f"Skipping closed node: {node_position}")
+                continue
 
             # Make sure walkable terrain
             if maze[node_position[0]][node_position[1]] != 0:
+                print(f"Skipping unwalkable node: {node_position}")
                 continue
 
             # Create new node
@@ -147,8 +154,13 @@ def astar(maze, start, end):
                     continue
 
             # Create the f, g, and h values
-            child.g = current_node.g + 1
-            child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
+            if (child.position[0] != current_node.position[0]) and (child.position[1] != current_node.position[1]):
+                child.g = current_node.g + 1.414  # sqrt(2) for diagonal movement
+            else:
+                child.g = current_node.g + 1  # 1 for orthogonal movement
+            dx = abs(child.position[0] - end_node.position[0])
+            dy = abs(child.position[1] - end_node.position[1])
+            child.h = dx + dy + (1.414 - 2) * min(dx, dy)  # Octile distance
             child.f = child.g + child.h
 
             # Child is already in the open list
@@ -158,7 +170,7 @@ def astar(maze, start, end):
 
             # Add the child to the open list
             open_list.append(child)
-    return path[::-1], expanded_nodes
+    return [], []  # Return empty path and expanded_nodes
 
 
 
@@ -184,12 +196,12 @@ def main():
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
     start = (0, 0)
-    end = (9,9)
+    end = (0,5)
 
 
     path, expanded_nodes = astar(maze, start, end)
     print(path)
-    if path == None:
+    if not path:
         print("No path found")
     else:
         visualize_maze(maze, path, expanded_nodes)
