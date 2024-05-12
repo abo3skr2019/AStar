@@ -12,6 +12,11 @@ def octile_distance(start, goal):
     dy = abs(start[1] - goal[1])
     return max(dx, dy) + (1 - 1 / 2) * min(dx, dy)
 
+def euclidean_distance(start, goal):
+    dx = abs(start[0] - goal[0])
+    dy = abs(start[1] - goal[1])
+    return (dx**2 + dy**2)**0.5
+
 def astar(matrix, start, goal):
     rows = len(matrix)
     cols = len(matrix[0])
