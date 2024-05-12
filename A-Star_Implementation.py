@@ -1,176 +1,106 @@
 import random
 import matplotlib.pyplot as plt
+import logging
+import heapq
+import matplotlib.pyplot as plt
+import numpy as np
+logging.basicConfig(filename='output.log', level=logging.INFO, format='%(message)s')
 
-class Node():
-    """A node class for A* Pathfinding"""
 
-    def __init__(self, parent=None, position=None):
-        self.parent = parent
-        self.position = position
+def octile_distance(start, goal):
+    dx = abs(start[0] - goal[0])
+    dy = abs(start[1] - goal[1])
+    return max(dx, dy) + (1 - 1 / 2) * min(dx, dy)
 
-        self.g = 0
-        self.h = 0
-        self.f = 0
+def astar(matrix, start, goal):
+    rows = len(matrix)
+    cols = len(matrix[0])
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+    open_set = [(0, start)]
+    came_from = {}
+    g_score = {start: 0}
+    f_score = {start: octile_distance(start, goal)}
 
-    def __eq__(self, other):
-        return self.position == other.position
+    while open_set:
+        current = heapq.heappop(open_set)[1]
+        yield current, open_set, came_from
 
-    # Create a 2D array to represent the maze
-def visualize_maze(maze, path, expanded_nodes):
-    """Visualizes the maze and the path"""
-
-    # Create a 2D array to represent the maze
-    maze_vis = [[0 for _ in range(len(maze[0]))] for _ in range(len(maze))]
-
-    # Mark the expanded nodes on the maze
-    for node in expanded_nodes:
-        maze_vis[node[0]][node[1]] = 4
-
-    # Mark the obstacles on the maze
-    for i in range(len(maze)):
-        for j in range(len(maze[0])):
-            if maze[i][j] == 1:
-                maze_vis[i][j] = 1
-
-    # Mark the start and end nodes
-    maze_vis[path[0][0]][path[0][1]] = 3  # Start node is now green
-    maze_vis[path[-1][0]][path[-1][1]] = 2  # End node is now purple
-
-    # Create a color map for the maze
-    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'purple', 'green', 'grey'])  # Changed the colors
-
-    # Create a figure and axes
-    fig, ax = plt.subplots()
-
-    # Display the maze
-    im = ax.imshow(maze_vis, cmap=cmap)
-
-    # Draw the path on top of the maze
-    path_x = [node[1] for node in path]
-    path_y = [node[0] for node in path]
-    ax.plot(path_x, path_y, color='blue', linewidth=2)  # Path is blue
-
-    # Create a colorbar
-    cbar = fig.colorbar(im, ax=ax, ticks=[0, 1, 2, 3, 4])
-
-    # Set the colorbar labels
-    cbar.ax.set_yticklabels(['Empty', 'Obstacle', 'End', 'Start', 'Expanded'])  # Changed the labels
-
-    # Set the title and labels
-    ax.set_title('Maze')
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-
-    ax.grid(True, which='both', color='k', linewidth=1)
-
-    x_ticks = [x + 0.5 for x in range(len(maze[0]))]
-    y_ticks = [y + 0.5 for y in range(len(maze))]
-    ax.set_xticks(x_ticks)
-    ax.set_yticks(y_ticks)
-
-    # Set the tick labels
-    ax.set_xticklabels(range(len(maze[0])))
-    ax.set_yticklabels(range(len(maze)))
-    ax.invert_yaxis()
-    # Set the aspect ratio to be equal so the grid cells are square
-    ax.set_aspect('equal')
-
-    # Show the plot
-    plt.show()        
-def astar(maze, start, end):
-    """Returns a list of tuples as a path from the given start to the given end in the given maze"""
-
-    # Create start and end node
-    start_node = Node(None, start)
-    start_node.g = start_node.h = start_node.f = 0
-    end_node = Node(None, end)
-    end_node.g = end_node.h = end_node.f = 0
-
-    # Initialize both open and closed list
-    open_list = []
-    closed_list = []
-    expanded_nodes = []
-    # Add the start node
-    open_list.append(start_node)
-
-    # Loop until you find the end
-    while len(open_list) > 0:
-
-        # Get the current node
-        current_node = open_list[0]
-        current_index = 0
-        for index, item in enumerate(open_list):
-            if item.f < current_node.f:
-                current_node = item
-                current_index = index
-
-        # Pop current off open list, add to closed list
-        open_list.pop(current_index)
-        closed_list.append(current_node)
-        print(f"Current Node {current_node.position} added to Expanded Node List\n")
-        print(f"H(n) = {current_node.h} , g(n) = {current_node.g} , F(n) = {current_node.f} \n")
-        expanded_nodes.append(current_node.position)
-
-        # Found the goal
-        if current_node.position == end_node.position:
+        if current == goal:
             path = []
-            current = current_node
-            while current is not None:
-                path.append(current.position)
-                current = current.parent
-            return path[::-1], expanded_nodes  # Return reversed path, expanded_nodes
-        # Generate children
-        children = []
-        for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            path.reverse()
+            return path
 
-            # Get node position
-            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+        for dx, dy in directions:
+            neighbor = current[0] + dx, current[1] + dy
+            if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and matrix[neighbor[0]][neighbor[1]] == 0:
+                tentative_g_score = g_score[current] + octile_distance(current, neighbor)
+                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = tentative_g_score + octile_distance(neighbor, goal)
+                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-            # Make sure within range
-            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
-                continue
-            # Check if node is in the closed list
-            if any(closed_node.position == node_position for closed_node in closed_list):
-                print(f"Skipping closed node: {node_position}")
-                continue
+    yield None, None, None
 
-            # Make sure walkable terrain
-            if maze[node_position[0]][node_position[1]] != 0:
-                print(f"Skipping unwalkable node: {node_position}")
-                continue
 
-            # Create new node
-            new_node = Node(current_node, node_position)
+        
+def visualize_search(matrix, start, goal):
+    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'purple', 'green', 'grey'])
+    fig, ax = plt.subplots(figsize=(10, 10))  # Increase the size of the plot
 
-            # Append
-            children.append(new_node)
 
-        # Loop through children
-        for child in children:
+    path = None
+    for current, open_set, came_from in astar(matrix, start, goal):
+        if current is None:
+            print("No path found")
+            break
 
-            # Child is on the closed list
-            for closed_child in closed_list:
-                if child == closed_child:
-                    continue
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            path.reverse()
+        # Create a 2D array to represent the matrix
+        matrix_vis = [[0 for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
 
-            # Create the f, g, and h values
-            if (child.position[0] != current_node.position[0]) and (child.position[1] != current_node.position[1]):
-                child.g = current_node.g + 1.414  # sqrt(2) for diagonal movement
-            else:
-                child.g = current_node.g + 1  # 1 for orthogonal movement
-            dx = abs(child.position[0] - end_node.position[0])
-            dy = abs(child.position[1] - end_node.position[1])
-            child.h = dx + dy + (1.414 - 2) * min(dx, dy)  # Octile distance
-            child.f = child.g + child.h
+        # Mark the expanded nodes on the matrix
+        for node in came_from.keys():
+            matrix_vis[node[0]][node[1]] = 4
 
-            # Child is already in the open list
-            for open_node in open_list:
-                if child == open_node and child.g > open_node.g:
-                    continue
+        # Mark the obstacles on the matrix
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                if matrix[i][j] == 1:
+                    matrix_vis[i][j] = 1
 
-            # Add the child to the open list
-            open_list.append(child)
-    return [], []  # Return empty path and expanded_nodes
+        # Mark the start and end nodes
+        matrix_vis[start[0]][start[1]] = 3  # Start node is now green
+        matrix_vis[goal[0]][goal[1]] = 2  # End node is now purple
+
+        # Draw the current state of the search.
+        ax.clear()
+        ax.imshow(matrix_vis, cmap=cmap)
+        if path:
+            ax.plot([x[1] for x in path], [x[0] for x in path], color='blue', linewidth=2)  # Path is blue
+
+        # Add grid lines
+        ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
+        ax.set_xticks(np.arange(-.5, len(matrix[0]), 1))
+        ax.set_yticks(np.arange(-.5, len(matrix), 1))
+
+        # Remove x and y axis numbers
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+
+        plt.pause(0.1)
+
+    plt.show()
 
 
 
@@ -182,29 +112,28 @@ def generate_maze(size, obstacle_density):
                 maze[i][j] = 1
     return maze
 
-def main():
-
-    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-
-    start = (0, 0)
-    end = (0,5)
-
-
-    path, expanded_nodes = astar(maze, start, end)
-    print(path)
-    if not path:
+def run(matrix, start, goal):
+    path = astar(matrix, start, goal)
+    if path is None:
         print("No path found")
     else:
-        visualize_maze(maze, path, expanded_nodes)
+        print("Path found:", path)
 
 if __name__ == '__main__':
-    main()
+        maze = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        new_maze = generate_maze(100, 0.4)
+        start= (1, 1)
+        end = (30, 30)
+        if new_maze[end[0]][end[1]] == 1:
+            print("End node is an obstacle")
+        else:
+            visualize_search(new_maze, start, end)
