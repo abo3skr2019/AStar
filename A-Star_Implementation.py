@@ -120,20 +120,21 @@ def run(matrix, start, goal):
         print("Path found:", path)
 
 if __name__ == '__main__':
-        maze = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
         new_maze = generate_maze(100, 0.4)
-        start= (1, 1)
-        end = (30, 30)
-        if new_maze[end[0]][end[1]] == 1:
-            print("End node is an obstacle")
-        else:
-            visualize_search(new_maze, start, end)
+        start= (0, 0)
+        end = (4, 6)
+        # if new_maze[end[0]][end[1]] == 1:
+        #     print("End node is an obstacle")
+        # else:
+        #     visualize_search(new_maze, start, end)
+        visualize_search(maze, start, end)
