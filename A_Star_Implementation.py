@@ -122,7 +122,9 @@ def visualize_search(matrix, start, goal):
         mark_start_end_nodes(matrix_vis, start, goal)
         draw_current_state(ax, matrix_vis, cmap, path)
 
-    plt.show()
+    plt.show(block=False)
+    #plt.pause(5)  # Display the plot for 5 seconds
+    plt.close()  # Close the plot window
 
 
 
