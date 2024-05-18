@@ -104,7 +104,7 @@ def get_path(came_from, current, start):
 
 def visualize_search(matrix, start, goal):
     cmap = plt.cm.colors.ListedColormap(['white', 'black', 'purple', 'green', 'grey'])
-    fig, ax = plt.subplots(figsize=(10, 10))  # Increase the size of the plot
+    _, ax = plt.subplots(figsize=(10, 10))  # Increase the size of the plot
 
     path = None
     matrix_vis = create_matrix_vis(matrix)
