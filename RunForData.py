@@ -1,6 +1,6 @@
 import cProfile
 import time
-from A_Star_Implementation import visualize_search, generate_maze
+from A_Star_Implementation import visualize_search, generate_maze,no_visuals_astar
 
 def run_and_profile():
     pregen_maze =[[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
@@ -17,10 +17,13 @@ def run_and_profile():
     used_maze = pregen_maze
     start = (0, 0)
     end = (4, 6)
+    no_visuals_astar(used_maze, start, end)
+
+    '''
     if used_maze[end[0]][end[1]] == 1 or used_maze[start[0]][start[1]] == 1:
         print("End node is an obstacle or start node is an obstacle.")
     else:
-        cProfile.runctx('visualize_search(used_maze, start, end)', globals(), locals(), 'output.pstats')
+        cProfile.runctx('no_visuals_astar(used_maze, start, end)', globals(), locals(), 'output.pstats')'''
 
 if __name__ == '__main__':
     start_time = time.perf_counter()

@@ -135,11 +135,16 @@ def generate_maze(size, obstacle_density):
     return maze
 
 def no_visuals_astar(matrix, start, goal):
-    path = astar(matrix, start, goal)
-    if path is None:
-        print("No path found")
-    else:
-        print("Path found:", path)
+    path = None
+    for current, open_set, came_from in astar(matrix, start, goal):
+        if current is None:
+            print("No path found")
+            return
+
+        if current == goal:
+            path = reconstruct_path(came_from, current, start)
+    print("Path found:", path)
+        
 
 if __name__ == '__main__':
         maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
