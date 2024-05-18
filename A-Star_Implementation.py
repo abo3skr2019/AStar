@@ -2,7 +2,6 @@ import random
 import matplotlib.pyplot as plt
 import logging
 import heapq
-import matplotlib.pyplot as plt
 import numpy as np
 logging.basicConfig(filename='output.log', level=logging.INFO, format='%(message)s')
 
@@ -138,8 +137,7 @@ if __name__ == '__main__':
         new_maze = generate_maze(100, 0.4)
         start= (0, 0)
         end = (4, 6)
-        # if new_maze[end[0]][end[1]] == 1:
-        #     print("End node is an obstacle")
-        # else:
-        #     visualize_search(new_maze, start, end)
-        visualize_search(maze, start, end)
+        if new_maze[end[0]][end[1]] == 1 or new_maze[start[0]][start[1]] == 1:
+             print("End node is an obstacle or start node is an obstacle.")
+        else:
+            visualize_search(new_maze, start, end)
