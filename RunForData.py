@@ -23,6 +23,7 @@ def run_and_profile():
     end = (99, 99)
     if maze[end[0]][end[1]] == 1 or maze[start[0]][start[1]] == 1:
         print("End node is an obstacle or start node is an obstacle.")
+        return
     else:
         cProfile.run('visualize_search(maze, start, end)', 'output.pstats')
 
