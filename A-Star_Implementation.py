@@ -17,6 +17,24 @@ def euclidean_distance(start, goal):
     dy = abs(start[1] - goal[1])
     return (dx**2 + dy**2)**0.5
 
+def reconstruct_path(came_from, current, start):
+    path = []
+    while current in came_from:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+    return path
+
+def process_neighbor(matrix, current, neighbor, goal, open_set, came_from, g_score, f_score, rows, cols):
+    if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and matrix[neighbor[0]][neighbor[1]] == 0:
+        tentative_g_score = g_score[current] + octile_distance(current, neighbor)
+        if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+            came_from[neighbor] = current
+            g_score[neighbor] = tentative_g_score
+            f_score[neighbor] = tentative_g_score + octile_distance(neighbor, goal)
+            heapq.heappush(open_set, (f_score[neighbor], neighbor))
+
 def astar(matrix, start, goal):
     rows = len(matrix)
     cols = len(matrix[0])
@@ -31,23 +49,11 @@ def astar(matrix, start, goal):
         yield current, open_set, came_from
 
         if current == goal:
-            path = []
-            while current in came_from:
-                path.append(current)
-                current = came_from[current]
-            path.append(start)
-            path.reverse()
-            return path
+            return reconstruct_path(came_from, current, start)
 
         for dx, dy in directions:
             neighbor = current[0] + dx, current[1] + dy
-            if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and matrix[neighbor[0]][neighbor[1]] == 0:
-                tentative_g_score = g_score[current] + octile_distance(current, neighbor)
-                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
-                    came_from[neighbor] = current
-                    g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + octile_distance(neighbor, goal)
-                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
+            process_neighbor(matrix, current, neighbor, goal, open_set, came_from, g_score, f_score, rows, cols)
 
     yield None, None, None
 
