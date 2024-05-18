@@ -1,4 +1,5 @@
 import cProfile
+import time
 from A_Star_Implementation import visualize_search, generate_maze
 
 def run_and_profile():
@@ -22,4 +23,8 @@ def run_and_profile():
         cProfile.runctx('visualize_search(used_maze, start, end)', globals(), locals(), 'output.pstats')
 
 if __name__ == '__main__':
+    start_time = time.perf_counter()
     run_and_profile()
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print(f"Execution time: {execution_time} seconds")
