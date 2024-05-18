@@ -14,10 +14,12 @@ def no_visuals_run_and_profile():
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
-    #Random_maze = generate_maze(100, 0.4)
-    used_maze = pregen_maze
+    Random_maze = generate_maze(100, 0.3)
+    used_maze = Random_maze
     start = (0, 0)
-    end = (4, 6)
+    end = (80, 80)
+    used_maze[start[0]][start[1]] = 0
+    used_maze[end[0]][end[1]] = 0
     no_visuals_astar(used_maze, start, end)
 
 def run_and_profile():
@@ -31,10 +33,10 @@ def run_and_profile():
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
-    #Random_maze = generate_maze(100, 0.4)
-    used_maze = pregen_maze
+    Random_maze = generate_maze(100, 0.3)
+    used_maze = Random_maze
     start = (0, 0)
-    end = (4, 6)
+    end = (80, 80)
     if used_maze[end[0]][end[1]] == 1 or used_maze[start[0]][start[1]] == 1:
         print("End node is an obstacle or start node is an obstacle.")
     else:
@@ -51,9 +53,9 @@ def run_multiple_times(n):
         no_visuals_times.append(end_time - start_time)
 
         start_time = time.perf_counter()
-        run_and_profile()
+        #run_and_profile()
         end_time = time.perf_counter()
-        visuals_times.append(end_time - start_time)
+        visuals_times.append(0)
     return no_visuals_times, visuals_times
 
 if __name__ == '__main__':

@@ -1,10 +1,85 @@
+import sys
 import random
-import matplotlib.pyplot as plt
-import logging
-import heapq
 import numpy as np
+import pyqtgraph as pg
+from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QColor
+import heapq
 
-logging.basicConfig(filename='output.log', level=logging.INFO, format='%(message)s')
+
+def is_surrounded(matrix, node):
+    rows, cols = len(matrix), len(matrix[0])
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+    for dx, dy in directions:
+        nx, ny = node[0] + dx, node[1] + dy
+        if 0 <= nx < rows and 0 <= ny < cols and matrix[nx][ny] == 0:
+            return False  # Found a non-obstacle neighbor
+    return True  # All neighbors are obstacles
+
+def no_visuals_astar(matrix, start, goal):
+    if is_surrounded(matrix, start) or is_surrounded(matrix, goal):
+        print("Start or end node is surrounded by obstacles. Exiting.")
+        return  # Early exit
+
+    path = None
+    for current, open_set, came_from in astar(matrix, start, goal):
+        if current is None:
+            print("No path found")
+            return
+
+        if current == goal:
+            path = reconstruct_path(came_from, current, start)
+    print("Path found:", path)
+
+def visualize_astar(maze, start, goal):
+    if is_surrounded(maze, start) or is_surrounded(maze, goal):
+        print("Start or end node is surrounded by obstacles. Exiting.")
+        return  # Early exit
+
+    app = QApplication([])
+    win = pg.GraphicsLayoutWidget(show=True, title="A* Visualization")
+    win.resize(600, 600)
+    view = win.addViewBox()
+    view.setAspectLocked(True)
+    view.enableAutoRange(True)
+    
+    color_maze = np.array([[0, 0, 0] if cell == 1 else [255, 255, 255] for row in maze for cell in row], dtype=np.ubyte).reshape((len(maze[0]), len(maze), 3)).transpose((1, 0, 2))
+    img_item = pg.ImageItem(image=color_maze)
+    view.addItem(img_item)
+
+    def update_cell(cell, color):
+        color_maze[cell[1], cell[0]] = color
+        img_item.setImage(image=color_maze)
+
+    def draw_path(path):
+        for i in range(len(path) - 1):
+            x = [path[i][0], path[i+1][0]]
+            y = [path[i][1], path[i+1][1]]
+            line = pg.PlotDataItem(y, x, pen=pg.mkPen('b', width=2))
+            view.addItem(line)
+            QApplication.processEvents()  # Force the GUI to update after drawing each line
+        
+    def astar_visualized(matrix, start, goal):
+        for current, open_set, came_from in astar(matrix, start, goal):
+            if current is None:
+                QMessageBox.warning(None, "Pathfinding Warning", "No path found. The application will close in 2 seconds.")
+                QTimer.singleShot(1600, app.exit)  # Close the app after 2 seconds
+                return
+
+            if current != goal:
+                update_cell(current, [0, 255, 0])  # Green for current path
+            else:
+                path = reconstruct_path(came_from, current, start)
+                draw_path(path)
+                print("Path found:", path)
+                return
+            QApplication.processEvents()
+    update_cell(start, [0, 255, 0])
+    update_cell(goal, [255, 215, 0])
+
+    astar_visualized(maze, start, goal)
+    sys.exit(app.exec_())
 
 
 def octile_distance(start, goal):
@@ -58,74 +133,6 @@ def astar(matrix, start, goal):
     yield None, None, None
 
 
-        
-def create_matrix_vis(matrix):
-    return [[0 for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
-
-def mark_expanded_nodes(matrix_vis, came_from):
-    for node in came_from.keys():
-        matrix_vis[node[0]][node[1]] = 4
-
-def mark_obstacles(matrix, matrix_vis):
-    for i in range(len(matrix)):
-        for j in range(len(matrix[0])):
-            if matrix[i][j] == 1:
-                matrix_vis[i][j] = 1
-
-def mark_start_end_nodes(matrix_vis, start, goal):
-    matrix_vis[start[0]][start[1]] = 3  # Start node is now green
-    matrix_vis[goal[0]][goal[1]] = 2  # End node is now purple
-
-def draw_current_state(ax, matrix_vis, cmap, path):
-    ax.clear()
-    ax.imshow(matrix_vis, cmap=cmap)
-    if path:
-        ax.plot([x[1] for x in path], [x[0] for x in path], color='blue', linewidth=2)  # Path is blue
-
-    # Add grid lines
-    ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
-    ax.set_xticks(np.arange(-.5, len(matrix_vis[0]), 1))
-    ax.set_yticks(np.arange(-.5, len(matrix_vis), 1))
-
-    # Remove x and y axis numbers
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-
-    plt.pause(0.1)
-
-def get_path(came_from, current, start):
-    path = []
-    while current in came_from:
-        path.append(current)
-        current = came_from[current]
-    path.append(start)
-    path.reverse()
-    return path
-
-def visualize_search(matrix, start, goal):
-    cmap = plt.cm.colors.ListedColormap(['white', 'black', 'purple', 'green', 'grey'])
-    _, ax = plt.subplots(figsize=(10, 10))  # Increase the size of the plot
-
-    path = None
-    matrix_vis = create_matrix_vis(matrix)
-    for current, open_set, came_from in astar(matrix, start, goal):
-        if current is None:
-            print("No path found")
-            break
-
-        if current == goal:
-            path = get_path(came_from, current, start)
-
-        
-        mark_expanded_nodes(matrix_vis, came_from)
-        mark_obstacles(matrix, matrix_vis)
-        mark_start_end_nodes(matrix_vis, start, goal)
-        draw_current_state(ax, matrix_vis, cmap, path)
-
-    plt.show(block=False)
-    #plt.pause(5)  # Display the plot for 5 seconds
-    plt.close()  # Close the plot window
-
 
 
 def generate_maze(size, obstacle_density):
@@ -136,17 +143,11 @@ def generate_maze(size, obstacle_density):
                 maze[i][j] = 1
     return maze
 
-def no_visuals_astar(matrix, start, goal):
-    path = None
-    for current, open_set, came_from in astar(matrix, start, goal):
-        if current is None:
-            print("No path found")
-            return
-
-        if current == goal:
-            path = reconstruct_path(came_from, current, start)
-    print("Path found:", path)
-        
+def end_obstacle():
+    if used_maze[end[0]][end[1]] == 1 or used_maze[start[0]][start[1]] == 1:
+        return True
+    else:
+            return False
 
 if __name__ == '__main__':
         maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
@@ -159,11 +160,12 @@ if __name__ == '__main__':
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
-        new_maze = generate_maze(100, 0.4)
+        new_maze = generate_maze(100, 0.1)
         used_maze = maze
         start= (0, 0)
-        end = (4, 6)
-        if used_maze[end[0]][end[1]] == 1 or used_maze[start[0]][start[1]] == 1:
+        end = (9, 9)
+        if end_obstacle():
+            
              print("End node is an obstacle or start node is an obstacle.")
         else:
-            visualize_search(used_maze, start, end)
+            visualize_astar(used_maze, start, end)
