@@ -4,7 +4,6 @@ import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QColor
 import heapq
 from queue import PriorityQueue
 
@@ -133,6 +132,9 @@ def visualize_astar(maze, start, goal):
             QApplication.processEvents()  # Force the GUI to update after drawing each line
         
     def astar_visualized(matrix, start, goal):
+        update_cell(start, [0, 255, 0])  # Ensure start node is green
+        update_cell(goal, [255, 215, 0])
+
         for current, open_set, came_from in astar(matrix, start, goal):
             if current is None:
                 QMessageBox.warning(None, "Pathfinding Warning", "No path found. The application will close in 2 seconds.")
@@ -140,15 +142,16 @@ def visualize_astar(maze, start, goal):
                 return
 
             if current != goal:
-                update_cell(current, [0, 255, 0])  # Green for current path
+                update_cell(current, [128, 128, 128])  # Grey for expanded nodes
             else:
                 path = reconstruct_path(came_from, current, start)
                 draw_path(path)
                 print("Path found:", path)
                 return
+            if current == start:
+                update_cell(start, [0, 255, 0])  # Ensure start node is green
+
             QApplication.processEvents()
-    update_cell(start, [0, 255, 0])
-    update_cell(goal, [255, 215, 0])
 
     astar_visualized(maze, start, goal)
     sys.exit(app.exec_())
@@ -194,8 +197,12 @@ def generate_maze(size, obstacle_density):
                 maze[i][j] = 1
     return maze
 
-def end_obstacle(used_maze, start, end):
-    if used_maze[end[0]][end[1]] == 1 or used_maze[start[0]][start[1]] == 1:
+def end_is_obstacle(used_maze, start, end):
+    if used_maze[end[0]][end[1]] == 1:
+        print("End node is an obstacle.")
+        return True
+    if used_maze[start[0]][start[1]] == 1:
+        print("Start node is an obstacle.")
         return True
     else:
             return False
@@ -215,8 +222,7 @@ if __name__ == '__main__':
         used_maze = maze
         start= (0, 0)
         end = (9, 9)
-        if end_obstacle(used_maze, start, end):
-            
-             print("End node is an obstacle or start node is an obstacle.")
+        if end_is_obstacle(used_maze, start, end):
+            pass
         else:
             visualize_astar(used_maze, start, end)
