@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import logging
 import heapq
 import numpy as np
+
 logging.basicConfig(filename='output.log', level=logging.INFO, format='%(message)s')
 
 
@@ -52,57 +53,68 @@ def astar(matrix, start, goal):
 
 
         
+def create_matrix_vis(matrix):
+    return [[0 for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
+
+def mark_expanded_nodes(matrix_vis, came_from):
+    for node in came_from.keys():
+        matrix_vis[node[0]][node[1]] = 4
+
+def mark_obstacles(matrix, matrix_vis):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] == 1:
+                matrix_vis[i][j] = 1
+
+def mark_start_end_nodes(matrix_vis, start, goal):
+    matrix_vis[start[0]][start[1]] = 3  # Start node is now green
+    matrix_vis[goal[0]][goal[1]] = 2  # End node is now purple
+
+def draw_current_state(ax, matrix_vis, cmap, path):
+    ax.clear()
+    ax.imshow(matrix_vis, cmap=cmap)
+    if path:
+        ax.plot([x[1] for x in path], [x[0] for x in path], color='blue', linewidth=2)  # Path is blue
+
+    # Add grid lines
+    ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
+    ax.set_xticks(np.arange(-.5, len(matrix_vis[0]), 1))
+    ax.set_yticks(np.arange(-.5, len(matrix_vis), 1))
+
+    # Remove x and y axis numbers
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+    plt.pause(0.1)
+
+def get_path(came_from, current, start):
+    path = []
+    while current in came_from:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+    return path
+
 def visualize_search(matrix, start, goal):
     cmap = plt.cm.colors.ListedColormap(['white', 'black', 'purple', 'green', 'grey'])
     fig, ax = plt.subplots(figsize=(10, 10))  # Increase the size of the plot
 
-
     path = None
+    matrix_vis = create_matrix_vis(matrix)
     for current, open_set, came_from in astar(matrix, start, goal):
         if current is None:
             print("No path found")
             break
 
         if current == goal:
-            path = []
-            while current in came_from:
-                path.append(current)
-                current = came_from[current]
-            path.append(start)
-            path.reverse()
-        # Create a 2D array to represent the matrix
-        matrix_vis = [[0 for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
+            path = get_path(came_from, current, start)
 
-        # Mark the expanded nodes on the matrix
-        for node in came_from.keys():
-            matrix_vis[node[0]][node[1]] = 4
-
-        # Mark the obstacles on the matrix
-        for i in range(len(matrix)):
-            for j in range(len(matrix[0])):
-                if matrix[i][j] == 1:
-                    matrix_vis[i][j] = 1
-
-        # Mark the start and end nodes
-        matrix_vis[start[0]][start[1]] = 3  # Start node is now green
-        matrix_vis[goal[0]][goal[1]] = 2  # End node is now purple
-
-        # Draw the current state of the search.
-        ax.clear()
-        ax.imshow(matrix_vis, cmap=cmap)
-        if path:
-            ax.plot([x[1] for x in path], [x[0] for x in path], color='blue', linewidth=2)  # Path is blue
-
-        # Add grid lines
-        ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
-        ax.set_xticks(np.arange(-.5, len(matrix[0]), 1))
-        ax.set_yticks(np.arange(-.5, len(matrix), 1))
-
-        # Remove x and y axis numbers
-        ax.set_xticklabels([])
-        ax.set_yticklabels([])
-
-        plt.pause(0.1)
+        
+        mark_expanded_nodes(matrix_vis, came_from)
+        mark_obstacles(matrix, matrix_vis)
+        mark_start_end_nodes(matrix_vis, start, goal)
+        draw_current_state(ax, matrix_vis, cmap, path)
 
     plt.show()
 
@@ -116,7 +128,7 @@ def generate_maze(size, obstacle_density):
                 maze[i][j] = 1
     return maze
 
-def run(matrix, start, goal):
+def no_visuals_astar(matrix, start, goal):
     path = astar(matrix, start, goal)
     if path is None:
         print("No path found")
@@ -135,9 +147,10 @@ if __name__ == '__main__':
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
         new_maze = generate_maze(100, 0.4)
+        used_maze = maze
         start= (0, 0)
         end = (4, 6)
-        if new_maze[end[0]][end[1]] == 1 or new_maze[start[0]][start[1]] == 1:
+        if used_maze[end[0]][end[1]] == 1 or used_maze[start[0]][start[1]] == 1:
              print("End node is an obstacle or start node is an obstacle.")
         else:
-            visualize_search(new_maze, start, end)
+            visualize_search(used_maze, start, end)
