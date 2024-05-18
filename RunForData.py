@@ -18,7 +18,7 @@ def write_pstats_to_csv(pstats_file, csv_file):
             writer.writerow(row)
 
 def run_and_profile():
-    PreGen_Maze =[[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    pregen_maze =[[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
@@ -29,14 +29,14 @@ def run_and_profile():
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
     #Random_maze = generate_maze(100, 0.4)
-    Used_maze = PreGen_Maze
+    used_maze = pregen_maze
     start = (0, 0)
     end = (4, 6)
-    if Used_maze[end[0]][end[1]] == 1 or Used_maze[start[0]][start[1]] == 1:
+    if used_maze[end[0]][end[1]] == 1 or used_maze[start[0]][start[1]] == 1:
         print("End node is an obstacle or start node is an obstacle.")
         return
     else:
-        cProfile.run('visualize_search(maze, start, end)', 'output.pstats')
+        cProfile.runctx('visualize_search(used_maze, start, end)', globals(), locals(), 'output.pstats')
 
     write_pstats_to_csv('output.pstats', 'pstats_output.csv')
 
