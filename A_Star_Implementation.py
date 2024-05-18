@@ -5,7 +5,6 @@ import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import QTimer
 import heapq
-from queue import PriorityQueue
 
 
 def is_surrounded(matrix, node):
@@ -17,38 +16,7 @@ def is_surrounded(matrix, node):
             return False  # Found a non-obstacle neighbor
     return True  # All neighbors are obstacles
 
-def queueastar(matrix, start, goal):
-    rows = len(matrix)
-    cols = len(matrix[0])
-    directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
-    open_set = PriorityQueue()
-    open_set.put((0, start))
-    came_from = {}
-    g_score = {start: 0}
-    f_score = {start: octile_distance(start, goal)}
-    open_set_hash = {start}  # This is used to keep track of items in the PriorityQueue
 
-    while not open_set.empty():
-        current = open_set.get()[1]
-        open_set_hash.remove(current)  # Remove from our tracking set
-        yield current, open_set, came_from
-
-        if current == goal:
-            return reconstruct_path(came_from, current, start)
-
-        for dx, dy in directions:
-            neighbor = current[0] + dx, current[1] + dy
-            if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and matrix[neighbor[0]][neighbor[1]] == 0:
-                tentative_g_score = g_score[current] + octile_distance(current, neighbor)
-                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
-                    came_from[neighbor] = current
-                    g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + octile_distance(neighbor, goal)
-                    if neighbor not in open_set_hash:
-                        open_set.put((f_score[neighbor], neighbor))
-                        open_set_hash.add(neighbor)  # Add to our tracking set
-
-    yield None, None, None
 
 def astar(matrix, start, goal):
     rows = len(matrix)
@@ -79,21 +47,6 @@ def no_visuals_astar(matrix, start, goal):
 
     path = None
     for current, open_set, came_from in astar(matrix, start, goal):
-        if current is None:
-            print("No path found")
-            return
-
-        if current == goal:
-            path = reconstruct_path(came_from, current, start)
-    print("Path found:", path)
-
-def no_visuals_queueastar(matrix, start, goal):
-    if is_surrounded(matrix, start) or is_surrounded(matrix, goal):
-        print("Start or end node is surrounded by obstacles. Exiting.")
-        return  # Early exit
-
-    path = None
-    for current, open_set, came_from in queueastar(matrix, start, goal):
         if current is None:
             print("No path found")
             return
