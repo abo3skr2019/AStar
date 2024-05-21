@@ -151,10 +151,12 @@ class SettingsMenu(QDialog):
         """
         logging.debug("Setting up window size config")
         self.sizeLayout = QHBoxLayout()
+
         self.widthLabel = QLabel("Window Width:")
         self.widthSpinBox = QSpinBox()
         self.widthSpinBox.setRange(100, 2000)
         self.widthSpinBox.setValue(DEFAULT_WINDOW_WIDTH)
+        self.widthSpinBox.setButtonSymbols(QSpinBox.NoButtons)  # Remove up and down arrows
         self.sizeLayout.addWidget(self.widthLabel)
         self.sizeLayout.addWidget(self.widthSpinBox)
 
@@ -162,10 +164,12 @@ class SettingsMenu(QDialog):
         self.heightSpinBox = QSpinBox()
         self.heightSpinBox.setRange(100, 2000)
         self.heightSpinBox.setValue(DEFAULT_WINDOW_HEIGHT)
+        self.heightSpinBox.setButtonSymbols(QSpinBox.NoButtons)  # Remove up and down arrows
         self.sizeLayout.addWidget(self.heightLabel)
         self.sizeLayout.addWidget(self.heightSpinBox)
 
         self.layout.addLayout(self.sizeLayout)
+
 
     def setupDarkModeConfig(self):
         """
