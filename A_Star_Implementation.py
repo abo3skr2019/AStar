@@ -5,6 +5,48 @@ import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import QTimer
 import heapq
+from SettingsMenu import SettingsMenu
+from Visualizer import Visualizer
+
+
+def open_settings_menu():
+    dialog = SettingsMenu()
+    dialog.settings_updated.connect(handle_updated_settings)
+    dialog.exec_()
+
+def handle_updated_settings(settings):
+    print("Updated settings:", settings)
+    global maze, start, end
+    if settings.get('maze_size') and settings.get('obstacle_density'):
+        maze = generate_maze(settings['maze_size'], settings['obstacle_density'])
+    start = settings['start_point']
+    end = settings['end_point']
+    if QApplication.instance() is not None:
+        Visualizer.visualize_astar(maze, start, end, QApplication.instance())
+def reconstruct_path(came_from, current, start):
+    path = []
+    while current in came_from:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    path.reverse()
+    return path
+
+
+
+
+
+
+
+def generate_maze(size, obstacle_density):
+    maze = [[0 for _ in range(size)] for _ in range(size)]
+    for i in range(size):
+        for j in range(size):
+            if random.uniform(0, 1) < obstacle_density:
+                maze[i][j] = 1
+    return maze
+
+
 
 
 def is_surrounded(matrix, node):
@@ -160,8 +202,9 @@ def end_is_obstacle(used_maze, start, end):
     else:
             return False
 
+
 if __name__ == '__main__':
-        maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
@@ -171,11 +214,14 @@ if __name__ == '__main__':
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
-        new_maze = generate_maze(100, 0.1)
-        used_maze = maze
-        start= (0, 0)
-        end = (9, 9)
-        if end_is_obstacle(used_maze, start, end):
-            pass
-        else:
-            visualize_astar(used_maze, start, end)
+    new_maze = generate_maze(100, 0.1)
+    used_maze = maze
+    start= (0, 0)
+    end = (9, 9)
+    if end_is_obstacle(used_maze, start, end):
+        pass
+    else:
+        visualize_astar(used_maze, start, end)
+    app = QApplication(sys.argv)  # Create QApplication instance at the start
+    open_settings_menu()
+    Visualizer.visualize_astar(maze, start, end, QApplication.instance())
