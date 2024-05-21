@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QVBoxLayout, QLabel, QLineEd
                              QComboBox, QMessageBox, QDialogButtonBox, QGridLayout, 
                              QCheckBox)
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import pyqtSignal,Qt
+from PyQt5.QtCore import pyqtSignal, Qt
 import random
 import logging
 
@@ -28,7 +28,7 @@ DARK_MODE_COLORS = {
     'end_node_color': '#FFD700',
     'path_color': '#0000FF',
     'obstacle_color': '#000000',
-    'background_color': '#FFFFFF'
+    'background_color': '#1E1E1E'
 }
 
 class SettingsMenu(QDialog):
@@ -119,7 +119,7 @@ class SettingsMenu(QDialog):
             for col in range(maze_size):
                 cellButton = QPushButton()
                 cellButton.setCheckable(True)
-                cellButton.setStyleSheet("background-color: white;")
+                cellButton.setStyleSheet("background-color: white; border: 1px solid #ccc;")
                 cellButton.toggled.connect(lambda checked, row=row, col=col: self.updateMazeCell(row, col, checked))
                 layout.addWidget(cellButton, row, col)
                 self.mazeCells[(row, col)] = cellButton
@@ -139,10 +139,10 @@ class SettingsMenu(QDialog):
         Update the state of a maze cell.
         """
         if checked:
-            self.mazeCells[(row, col)].setStyleSheet("background-color: black;")
+            self.mazeCells[(row, col)].setStyleSheet("background-color: black; border: 1px solid #ccc;")
             self.mazeArray[row][col] = 1
         else:
-            self.mazeCells[(row, col)].setStyleSheet("background-color: white;")
+            self.mazeCells[(row, col)].setStyleSheet("background-color: white; border: 1px solid #ccc;")
             self.mazeArray[row][col] = 0
 
     def setupWindowSizeConfig(self):
@@ -194,27 +194,28 @@ class SettingsMenu(QDialog):
         if enabled:
             self.setStyleSheet("""
                 QDialog {
-                    background-color: #2b2b2b;
-                    color: #ffffff;
+                    background-color: #1E1E1E;
+                    color: #FFFFFF;
                 }
                 QLabel {
-                    color: #ffffff;
+                    color: #FFFFFF;
                 }
                 QLineEdit, QSpinBox, QComboBox, QCheckBox {
-                    background-color: #3c3c3c;
-                    color: #ffffff;
+                    background-color: #3C3C3C;
+                    color: #FFFFFF;
                     border: 1px solid #555555;
                     padding: 5px;
-                }
-                QLineEdit {
                     border-radius: 4px;
                 }
                 QPushButton {
-                    background-color: #4c4c4c;
-                    color: #ffffff;
+                    background-color: #4C4C4C;
+                    color: #FFFFFF;
                     border: 1px solid #555555;
                     padding: 5px;
                     border-radius: 4px;
+                }
+                QPushButton:hover {
+                    background-color: #5C5C5C;
                 }
             """)
             self.colorSettings.update(DARK_MODE_COLORS)
@@ -230,7 +231,7 @@ class SettingsMenu(QDialog):
         for color_key, default_color in self.colorSettings.items():
             swatch = self.findChild(QLabel, color_key)
             if swatch:
-                swatch.setStyleSheet(f"background-color: {default_color};")
+                swatch.setStyleSheet(f"background-color: {default_color}; border: 1px solid #555555;")
 
     def setupColorConfig(self):
         """
@@ -245,7 +246,7 @@ class SettingsMenu(QDialog):
         for color_key, default_color in self.colorSettings.items():
             self.createColorPicker(color_key, default_color, row, col)
             col += 1
-            if col == 5:  # Change this number to adjust how many swatches per row
+            if col == 3:  # Adjust swatches per row
                 col = 0
                 row += 1
 
@@ -264,7 +265,7 @@ class SettingsMenu(QDialog):
         label = QLabel(f"{color_key.replace('_', ' ').title()}:")
         swatch = QLabel()
         swatch.setObjectName(color_key)
-        swatch.setStyleSheet(f"background-color: {default_color};")
+        swatch.setStyleSheet(f"background-color: {default_color}; border: 1px solid #555555;")
         swatch.setFixedSize(50, 20)
         swatch.mousePressEvent = lambda event, key=color_key, sw=swatch: self.openColorDialog(key, sw)
         colorLayout = QHBoxLayout()
@@ -284,7 +285,7 @@ class SettingsMenu(QDialog):
         color = QColorDialog.getColor(QColor(swatch.styleSheet().split(': ')[1].split(';')[0]))
         if color.isValid():
             self.colorSettings[color_key] = color.name()
-            swatch.setStyleSheet(f"background-color: {color.name()};")
+            swatch.setStyleSheet(f"background-color: {color.name()}; border: 1px solid #555555;")
 
     def setupMazeConfig(self):
         """
@@ -515,3 +516,4 @@ class SettingsMenu(QDialog):
             settings.update({'obstacle_density': obstacle_density})
         self.settings_updated.emit(settings)
         self.accept()
+

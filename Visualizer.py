@@ -1,4 +1,3 @@
-# Visualizer.py
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMessageBox
@@ -14,7 +13,7 @@ class Visualizer:
         self.astar_function = astar_function
         self.settings = settings
         self.win = pg.GraphicsLayoutWidget(show=True, title="A* Visualization")
-        self.win.resize(600, 600)
+        self.win.resize(settings['window_width'], settings['window_height'])
         self.view = self.win.addViewBox()
         self.view.setAspectLocked(True)
         self.view.enableAutoRange(True)
@@ -110,18 +109,3 @@ class Visualizer:
         msgBox.setStandardButtons(QMessageBox.Ok)
         msgBox.exec_()
         QApplication.quit()
-
-    def no_visuals_astar(self):
-        if self.is_surrounded(self.maze, self.start) or self.is_surrounded(self.maze, self.goal):
-            print("Start or end node is surrounded by obstacles. Exiting.")
-            return  # Early exit
-
-        path = None
-        for current, open_set, came_from in self.astar_function(self.maze, self.start, self.goal):
-            if current is None:
-                print("No path found")
-                return
-
-            if current == self.goal:
-                path = reconstruct_path(came_from, current, self.start)
-        print("Path found:", path)
