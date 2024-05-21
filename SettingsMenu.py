@@ -21,14 +21,17 @@ DEFAULT_COLORS = {
     'end_node_color': '#FFD700',
     'path_color': '#0000FF',
     'obstacle_color': '#000000',
-    'background_color': '#FFFFFF'
+    'background_color': '#FFFFFF',
+    'expanded_node_color': '#808080'  # Add this line
 }
+
 DARK_MODE_COLORS = {
     'start_node_color': '#00FF00',
     'end_node_color': '#FFD700',
     'path_color': '#0000FF',
     'obstacle_color': '#000000',
-    'background_color': '#1E1E1E'
+    'background_color': '#1E1E1E',
+    'expanded_node_color': '#808080'  # Add this line
 }
 
 class SettingsMenu(QDialog):
@@ -256,6 +259,7 @@ class SettingsMenu(QDialog):
 
         self.layout.addLayout(self.colorConfigLayout)
 
+
     def createColorPicker(self, color_key, default_color, row, col):
         """
         Create a color picker for a given color setting.
@@ -455,9 +459,6 @@ class SettingsMenu(QDialog):
             return None, None
 
     def useDefaultSettings(self):
-        """
-        Use default settings if the dialog is rejected.
-        """
         logging.debug("Using default settings")
         default_settings = {
             'window_width': DEFAULT_WINDOW_WIDTH,
@@ -472,6 +473,7 @@ class SettingsMenu(QDialog):
             'path_color': DARK_MODE_COLORS['path_color'],
             'obstacle_color': DARK_MODE_COLORS['obstacle_color'],
             'background_color': DARK_MODE_COLORS['background_color'],
+            'expanded_node_color': DARK_MODE_COLORS['expanded_node_color'],  # Add this line
             'maze': self.generate_maze(DEFAULT_MAZE_SIZE, DEFAULT_OBSTACLE_DENSITY),
         }
         self.settings_updated.emit(default_settings)
@@ -491,9 +493,6 @@ class SettingsMenu(QDialog):
         return self.mazeArray
 
     def saveSettings(self):
-        """
-        Save the user settings and emit the settings_updated signal.
-        """
         logging.debug("Saving settings")
         if not self.validateInputs():
             return
@@ -513,6 +512,7 @@ class SettingsMenu(QDialog):
             'path_color': self.colorSettings['path_color'],
             'obstacle_color': self.colorSettings['obstacle_color'],
             'background_color': self.colorSettings['background_color'],
+            'expanded_node_color': self.colorSettings['expanded_node_color'],  # Add this line
             'maze': self.MazeSetter(),
         }
         if self.randomMazeCheckBox.isChecked():
@@ -520,4 +520,5 @@ class SettingsMenu(QDialog):
             settings.update({'obstacle_density': obstacle_density})
         self.settings_updated.emit(settings)
         self.accept()
+
 

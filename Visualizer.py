@@ -57,13 +57,15 @@ class Visualizer:
         path_color = QColor(self.settings['path_color']).getRgb()[:3]
         obstacle_color = QColor(self.settings['obstacle_color']).getRgb()[:3]
         background_color = QColor(self.settings['background_color']).getRgb()[:3]
+        expanded_node_color = QColor(self.settings['expanded_node_color']).getRgb()[:3]  # Add this line
 
         self.color_maze = np.array([obstacle_color if cell == 1 else background_color for row in self.maze for cell in row], dtype=np.ubyte).reshape((len(self.maze[0]), len(self.maze), 3)).transpose((1, 0, 2))
 
         img_item = pg.ImageItem(image=self.color_maze)
         self.view.addItem(img_item)
 
-        self.astar_visualized(img_item, start_color, end_color, path_color)
+        self.astar_visualized(img_item, start_color, end_color, path_color, expanded_node_color)  # Pass it here
+
 
     def update_cell(self, img_item, cell, color):
         self.color_maze[cell[1], cell[0]] = color
@@ -77,7 +79,7 @@ class Visualizer:
             self.view.addItem(line)
             QApplication.processEvents()  # Force the GUI to update after drawing each line
 
-    def astar_visualized(self, img_item, start_color, end_color, path_color):
+    def astar_visualized(self, img_item, start_color, end_color, path_color, expanded_node_color):
         self.update_cell(img_item, self.start, start_color)
         self.update_cell(img_item, self.goal, end_color)
 
@@ -88,7 +90,7 @@ class Visualizer:
                 return
 
             if current != self.goal:
-                self.update_cell(img_item, current, [128, 128, 128])  # Grey for expanded nodes
+                self.update_cell(img_item, current, expanded_node_color)  # Use the new color here
             else:
                 path = reconstruct_path(came_from, current, self.start)
                 self.draw_path(path)
