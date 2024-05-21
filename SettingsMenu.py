@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QVBoxLayout, QLabel, QLineEd
                              QComboBox, QMessageBox, QDialogButtonBox, QGridLayout, 
                              QCheckBox)
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal,Qt
 import random
 import logging
 
@@ -23,7 +23,13 @@ DEFAULT_COLORS = {
     'obstacle_color': '#000000',
     'background_color': '#FFFFFF'
 }
-
+DARK_MODE_COLORS = {
+    'start_node_color': '#00FF00',
+    'end_node_color': '#FFD700',
+    'path_color': '#0000FF',
+    'obstacle_color': '#000000',
+    'background_color': '#FFFFFF'
+}
 
 class SettingsMenu(QDialog):
     settings_updated = pyqtSignal(dict)
@@ -40,6 +46,9 @@ class SettingsMenu(QDialog):
         
         # Window size configuration
         self.setupWindowSizeConfig()
+
+        # Dark mode configuration
+        self.setupDarkModeConfig()
 
         # Color configuration
         self.setupColorConfig()
@@ -59,6 +68,9 @@ class SettingsMenu(QDialog):
         self.saveButton.clicked.connect(self.saveSettings)
         self.layout.addWidget(self.saveButton)
         self.rejected.connect(self.useDefaultSettings)
+
+        # Apply dark mode by default
+        self.applyDarkMode(True)
 
     def setupRandomMazeConfig(self):
         """
@@ -155,36 +167,110 @@ class SettingsMenu(QDialog):
 
         self.layout.addLayout(self.sizeLayout)
 
+    def setupDarkModeConfig(self):
+        """
+        Setup configuration for dark mode settings.
+        """
+        logging.debug("Setting up dark mode config")
+        self.darkModeLayout = QHBoxLayout()
+        self.darkModeCheckBox = QCheckBox("Dark Mode")
+        self.darkModeCheckBox.setChecked(True)
+        self.darkModeCheckBox.stateChanged.connect(self.toggleDarkMode)
+        self.darkModeLayout.addWidget(self.darkModeCheckBox)
+        self.layout.addLayout(self.darkModeLayout)
+
+    def toggleDarkMode(self, state):
+        """
+        Toggle dark mode based on the checkbox state.
+        """
+        logging.debug("Toggling dark mode")
+        dark_mode = state == Qt.Checked
+        self.applyDarkMode(dark_mode)
+
+    def applyDarkMode(self, enabled):
+        """
+        Apply dark mode styles to the dialog.
+        """
+        if enabled:
+            self.setStyleSheet("""
+                QDialog {
+                    background-color: #2b2b2b;
+                    color: #ffffff;
+                }
+                QLabel {
+                    color: #ffffff;
+                }
+                QLineEdit, QSpinBox, QComboBox, QCheckBox {
+                    background-color: #3c3c3c;
+                    color: #ffffff;
+                    border: 1px solid #555555;
+                    padding: 5px;
+                }
+                QLineEdit {
+                    border-radius: 4px;
+                }
+                QPushButton {
+                    background-color: #4c4c4c;
+                    color: #ffffff;
+                    border: 1px solid #555555;
+                    padding: 5px;
+                    border-radius: 4px;
+                }
+            """)
+            self.colorSettings.update(DARK_MODE_COLORS)
+        else:
+            self.setStyleSheet("")
+            self.colorSettings.update(DEFAULT_COLORS)
+        self.updateColorSwatches()
+
+    def updateColorSwatches(self):
+        """
+        Update the color swatches based on the current color settings.
+        """
+        for color_key, default_color in self.colorSettings.items():
+            swatch = self.findChild(QLabel, color_key)
+            if swatch:
+                swatch.setStyleSheet(f"background-color: {default_color};")
+
     def setupColorConfig(self):
         """
         Setup configuration for color settings.
         """
         logging.debug("Setting up color config")
-        self.colorConfigLayout = QVBoxLayout()
-        self.colorSettings = DEFAULT_COLORS.copy()
+        self.colorConfigLayout = QGridLayout()
+        self.colorSettings = DARK_MODE_COLORS.copy()
 
+        row = 0
+        col = 0
         for color_key, default_color in self.colorSettings.items():
-            self.createColorPicker(color_key, default_color)
+            self.createColorPicker(color_key, default_color, row, col)
+            col += 1
+            if col == 5:  # Change this number to adjust how many swatches per row
+                col = 0
+                row += 1
 
         self.layout.addLayout(self.colorConfigLayout)
 
-    def createColorPicker(self, color_key, default_color):
+    def createColorPicker(self, color_key, default_color, row, col):
         """
         Create a color picker for a given color setting.
 
         Args:
             color_key (str): The key for the color setting.
             default_color (str): The default color value.
+            row (int): The row in the grid layout.
+            col (int): The column in the grid layout.
         """
         label = QLabel(f"{color_key.replace('_', ' ').title()}:")
         swatch = QLabel()
+        swatch.setObjectName(color_key)
         swatch.setStyleSheet(f"background-color: {default_color};")
         swatch.setFixedSize(50, 20)
         swatch.mousePressEvent = lambda event, key=color_key, sw=swatch: self.openColorDialog(key, sw)
         colorLayout = QHBoxLayout()
         colorLayout.addWidget(label)
         colorLayout.addWidget(swatch)
-        self.colorConfigLayout.addLayout(colorLayout)
+        self.colorConfigLayout.addLayout(colorLayout, row, col)
 
     def openColorDialog(self, color_key, swatch):
         """
@@ -363,7 +449,6 @@ class SettingsMenu(QDialog):
             QMessageBox.critical(self, "Input Error", f"Start/End Point Error: {e}")
             return None, None
 
-
     def useDefaultSettings(self):
         """
         Use default settings if the dialog is rejected.
@@ -377,11 +462,11 @@ class SettingsMenu(QDialog):
             'end_point': (DEFAULT_MAZE_SIZE - 1, DEFAULT_MAZE_SIZE - 1),
             'obstacle_density': DEFAULT_OBSTACLE_DENSITY,
             'heuristic': DEFAULT_HEURISTIC,
-            'start_node_color': DEFAULT_COLORS['start_node_color'],
-            'end_node_color': DEFAULT_COLORS['end_node_color'],
-            'path_color': DEFAULT_COLORS['path_color'],
-            'obstacle_color': DEFAULT_COLORS['obstacle_color'],
-            'background_color': DEFAULT_COLORS['background_color'],
+            'start_node_color': DARK_MODE_COLORS['start_node_color'],
+            'end_node_color': DARK_MODE_COLORS['end_node_color'],
+            'path_color': DARK_MODE_COLORS['path_color'],
+            'obstacle_color': DARK_MODE_COLORS['obstacle_color'],
+            'background_color': DARK_MODE_COLORS['background_color'],
             'maze': self.generate_maze(DEFAULT_MAZE_SIZE, DEFAULT_OBSTACLE_DENSITY),
         }
         self.settings_updated.emit(default_settings)
@@ -430,4 +515,3 @@ class SettingsMenu(QDialog):
             settings.update({'obstacle_density': obstacle_density})
         self.settings_updated.emit(settings)
         self.accept()
-
