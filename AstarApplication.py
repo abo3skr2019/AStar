@@ -1,3 +1,4 @@
+# AStarApplication.py
 import sys
 import random
 import numpy as np
@@ -6,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import QTimer
 import heapq
 from SettingsMenu import SettingsMenu
-from Visualizer import visualize_astar, no_visuals_astar
+from Visualizer import Visualizer
 from functools import partial
 from utils import reconstruct_path
 
@@ -25,7 +26,8 @@ class AStarApplication:
 
     def start_visualization(self, settings):
         print("Starting visualization")
-        visualize_astar(self.maze, self.start, self.end, self.astar, settings)
+        visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings)
+        visualizer.visualize()
 
     def open_settings_menu(self):
         if not self.settings_applied:

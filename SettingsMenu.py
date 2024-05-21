@@ -349,14 +349,20 @@ class SettingsMenu(QDialog):
         try:
             start_point = tuple(map(int, self.startPointLineEdit.text().split(',')))
             end_point = tuple(map(int, self.endPointLineEdit.text().split(',')))
+            
             if not (0 <= start_point[0] < maze_size and 0 <= start_point[1] < maze_size):
                 raise ValueError("Start point is out of bounds.")
             if not (0 <= end_point[0] < maze_size and 0 <= end_point[1] < maze_size):
                 raise ValueError("End point is out of bounds.")
+            
+            if start_point == end_point:
+                raise ValueError("Start point and end point cannot be the same.")
+            
             return start_point, end_point
         except ValueError as e:
             QMessageBox.critical(self, "Input Error", f"Start/End Point Error: {e}")
             return None, None
+
 
     def useDefaultSettings(self):
         """
