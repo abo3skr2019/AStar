@@ -99,6 +99,7 @@ def wait_for_user_action():
     msgBox.setInformativeText("Close this message box to exit the application.")
     msgBox.setStandardButtons(QMessageBox.Ok)
     msgBox.exec_()
+    QApplication.quit()
 
 def no_visuals_astar(matrix, start, goal,astar_function,):
     if is_surrounded(matrix, start) or is_surrounded(matrix, goal):
