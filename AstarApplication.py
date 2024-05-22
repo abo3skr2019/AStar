@@ -18,22 +18,30 @@ class AStarApplication:
         self.end = None
         self.heuristic = self.octile_distance
         self.settings_applied = False
+        self.visualizer = None
+        self.settings_dialog = None  # Reference to settings dialog
         print("AStarApplication initialized.")
         self.open_settings_menu()
 
     def start_visualization(self, settings):
         """Start the visualization."""
         print("Starting visualization")
-        visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings)
-        visualizer.visualize()
+        self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings)
+        self.visualizer.visualization_complete.connect(self.on_visualization_complete)  # Connect signal
+        self.visualizer.visualize()
 
     def open_settings_menu(self):
         """Open the settings menu to configure the application."""
+        if self.settings_dialog is not None and self.settings_dialog.isVisible():
+            print("Closing existing settings menu.")
+            self.settings_dialog.close()
+            
         if not self.settings_applied:
             print("Opening settings menu")
-            dialog = SettingsMenu()
-            dialog.settings_updated.connect(self.handle_updated_settings)
-            dialog.exec_()
+            self.settings_dialog = SettingsMenu()
+            self.settings_dialog.settings_updated.connect(self.handle_updated_settings)
+            self.settings_dialog.menu_closed.connect(self.on_settings_menu_closed)
+            self.settings_dialog.exec_()
         else:
             print("Settings already applied, skipping opening settings menu.")
 
@@ -48,6 +56,18 @@ class AStarApplication:
         self.settings_applied = True
         print("Settings applied.")
         self.start_visualization(settings)
+
+    def on_visualization_complete(self):
+        """Handle the completion of the visualization."""
+        print("Visualization complete, reopening settings menu.")
+        self.settings_applied = False  # Reset the flag
+        self.open_settings_menu()
+
+    def on_settings_menu_closed(self):
+        """Handle the settings menu being closed."""
+        if not self.settings_applied:
+            sys.exit()
+        self.settings_dialog = None  # Reset the settings dialog reference
 
     def octile_distance(self, start, goal):
         """Calculate the octile distance heuristic."""

@@ -36,6 +36,8 @@ DARK_MODE_COLORS = {
 
 class SettingsMenu(QDialog):
     settings_updated = pyqtSignal(dict)
+    menu_closed = pyqtSignal()
+
 
     def __init__(self, parent=None):
         """
@@ -74,6 +76,14 @@ class SettingsMenu(QDialog):
 
         # Apply dark mode by default
         self.applyDarkMode(True)
+        self.rejected.connect(self.useDefaultSettings)
+        self.accepted.connect(self.on_accepted)
+
+
+    def on_accepted(self):
+        """Emit the menu_closed signal when the dialog is accepted."""
+        self.menu_closed.emit()
+
 
     def setupRandomMazeConfig(self):
         """
@@ -512,13 +522,13 @@ class SettingsMenu(QDialog):
             'path_color': self.colorSettings['path_color'],
             'obstacle_color': self.colorSettings['obstacle_color'],
             'background_color': self.colorSettings['background_color'],
-            'expanded_node_color': self.colorSettings['expanded_node_color'],  # Add this line
+            'expanded_node_color': self.colorSettings['expanded_node_color'],
             'maze': self.MazeSetter(),
         }
         if self.randomMazeCheckBox.isChecked():
             obstacle_density = float(self.obstacleDensityLineEdit.text())
             settings.update({'obstacle_density': obstacle_density})
         self.settings_updated.emit(settings)
-        self.accept()
+        self.accept()  # Close the settings menu
 
 

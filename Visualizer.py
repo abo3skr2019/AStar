@@ -1,13 +1,16 @@
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 from PyQt5.QtGui import QColor
 from utils import reconstruct_path
+import sys
 
-class Visualizer:
+class Visualizer(QObject):
+    visualization_complete = pyqtSignal()
+
     def __init__(self, maze, start, goal, astar_function, settings):
-        """Initialize the Visualizer with the given parameters."""
+        super().__init__()  # Initialize QObject
         self.maze = maze
         self.start = start
         self.goal = goal
@@ -46,14 +49,17 @@ class Visualizer:
         print(f"\nSettings: {self.settings}\nStart node: {self.start}\nEnd node: {self.goal}\nMaze: {self.maze}\n")
 
         if self.end_is_obstacle():
-            print("End or Start node is an obstacle. Exiting.")
-            exit()
+            print("End or Start node is an obstacle.")
+            self.show_reopen_settings_dialog("End or Start node is an obstacle.")
+            return
         if self.is_surrounded(self.start):
-            print("Start node is surrounded by obstacles. Exiting.")
-            exit()
+            print("Start node is surrounded by obstacles.")
+            self.show_reopen_settings_dialog("Start node is surrounded by obstacles.")
+            return
         if self.is_surrounded(self.goal):
-            print("End node is surrounded by obstacles. Exiting.")
-            exit()
+            print("End node is surrounded by obstacles.")
+            self.show_reopen_settings_dialog("End node is surrounded by obstacles.")
+            return
 
         start_color = QColor(self.settings['start_node_color']).getRgb()[:3]
         end_color = QColor(self.settings['end_node_color']).getRgb()[:3]
@@ -101,7 +107,6 @@ class Visualizer:
                 self.draw_path(path)
                 print("Path found:", path)
                 self.wait_for_user_action()
-                exit()
                 return
 
             if current == self.start:
@@ -110,10 +115,31 @@ class Visualizer:
             QApplication.processEvents()
 
     def wait_for_user_action(self):
-        """Wait for user action before exiting the application."""
+        """Wait for user action before completing the visualization."""
         msgBox = QMessageBox()
         msgBox.setText("The pathfinding visualization is complete.")
-        msgBox.setInformativeText("Close this message box to exit the application.")
-        msgBox.setStandardButtons(QMessageBox.Ok)
-        msgBox.exec_()
-        QApplication.quit()
+        msgBox.setInformativeText("Click Ok to restart with different parameters, or Cancel to exit.")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        result = msgBox.exec_()
+        if result == QMessageBox.Ok:
+            self.close_visualizer()  # Close the visualizer window
+            self.visualization_complete.emit()  # Emit the signal to reopen the settings menu
+        else:
+            sys.exit()  # Properly close the application
+
+    def show_reopen_settings_dialog(self, message):
+        """Show a message box to reopen settings or exit."""
+        msgBox = QMessageBox()
+        msgBox.setText(message)
+        msgBox.setInformativeText("Click Ok to reopen the settings menu, or Cancel to exit.")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        result = msgBox.exec_()
+        if result == QMessageBox.Ok:
+            self.close_visualizer()  # Close the visualizer window
+            self.visualization_complete.emit()  # Emit the signal to reopen the settings menu
+        else:
+            sys.exit()  # Properly close the application
+
+    def close_visualizer(self):
+        """Close the visualizer window."""
+        self.win.close()
