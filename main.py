@@ -7,9 +7,16 @@ import pandas as pd
 from utils import generate_maze
 
 def run_tests():
+    """
+    Function to run tests on the A* application. 
+    Generates a maze of size 10x10 to 100x100 with obstacle densities from 0 to 0.9.
+    Runs the application 100 times for each maze size and obstacle density.
+    Calculates the average execution time for each maze size and obstacle density.
+    Writes the results to a CSV file and an Excel file.
+    """
     results = []
     for maze_size in range(10, 110, 10):
-        for obstacle_density in [i/10 for i in range(0, 10)]:  # Change here
+        for obstacle_density in [i/10 for i in range(0, 10)]:
             exec_times = []
             for _ in range(100):
                 predefined_settings = {
@@ -43,7 +50,7 @@ def run_tests():
 
     df = pd.read_csv('results.csv')
     df.to_excel('results.xlsx', index=False)
-    
+
 
 def main():
     """

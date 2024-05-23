@@ -178,7 +178,6 @@ class Visualizer(QObject):
                 if self.bypass_settings:
                     logging.debug("Bypass settings is True. Quitting application.")
                     self.quit_application()
-                    exit()
                 else:
                     self.wait_for_user_action()
                 return
