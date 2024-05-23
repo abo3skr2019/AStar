@@ -3,6 +3,10 @@ from AstarApplication import AStarApplication
 import sys
 
 def main():
+    """
+    Main function to start the A* application.
+    Configures logging, initializes predefined settings, and starts the application.
+    """
     logging.basicConfig(filename='application.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     logging.debug("Starting main.py")
 
