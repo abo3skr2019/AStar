@@ -9,7 +9,7 @@ from utils import generate_maze
 def run_tests():
     results = []
     for maze_size in range(10, 110, 10):
-        for obstacle_density in [i/10 for i in range(0, 11)]:
+        for obstacle_density in [i/10 for i in range(0, 10)]:  # Change here
             exec_times = []
             for _ in range(100):
                 predefined_settings = {
@@ -43,7 +43,7 @@ def run_tests():
 
     df = pd.read_csv('results.csv')
     df.to_excel('results.xlsx', index=False)
-
+    
 
 def main():
     """
