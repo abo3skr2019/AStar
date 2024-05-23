@@ -14,6 +14,12 @@ from utils import reconstruct_path
 class AStarApplication:
     def __init__(self, bypass_settings=False, predefined_settings=None):
         """Initialize the AStarApplication."""
+        self._initialize_app()
+        self._initialize_settings(bypass_settings, predefined_settings)
+        print("AStarApplication initialized.")
+
+    def _initialize_app(self):
+        """Initialize the application and default values."""
         self.app = QApplication.instance() or QApplication(sys.argv)
         self.maze = None
         self.start = None
@@ -22,9 +28,10 @@ class AStarApplication:
         self.settings_applied = False
         self.visualizer = None
         self.settings_dialog = None  # Reference to settings dialog
-        self.bypass_settings = bypass_settings  # Store the bypass_settings flag
-        print("AStarApplication initialized.")
 
+    def _initialize_settings(self, bypass_settings, predefined_settings):
+        """Initialize settings based on parameters."""
+        self.bypass_settings = bypass_settings  # Store the bypass_settings flag
         if bypass_settings and predefined_settings:
             self.apply_predefined_settings(predefined_settings)
         else:
@@ -77,19 +84,51 @@ class AStarApplication:
         self.settings_dialog = None  # Reset the settings dialog reference
 
     def octile_distance(self, start, goal):
-        """Calculate the octile distance heuristic."""
+        """
+        Calculate the octile distance heuristic.
+        
+        Args:
+            start (tuple): The start node coordinates.
+            goal (tuple): The goal node coordinates.
+
+        Returns:
+            float: The octile distance.
+        """
         dx = abs(start[0] - goal[0])
         dy = abs(start[1] - goal[1])
         return max(dx, dy) + (1 - 1 / 2) * min(dx, dy)
 
     def euclidean_distance(self, start, goal):
-        """Calculate the euclidean distance heuristic."""
+        """
+        Calculate the euclidean distance heuristic.
+        
+        Args:
+            start (tuple): The start node coordinates.
+            goal (tuple): The goal node coordinates.
+
+        Returns:
+            float: The euclidean distance.
+        """
         dx = abs(start[0] - goal[0])
         dy = abs(start[1] - goal[1])
         return (dx**2 + dy**2)**0.5
 
     def process_neighbor(self, matrix, current, neighbor, goal, open_set, came_from, g_score, f_score, rows, cols):
-        """Process a neighbor node during A* algorithm."""
+        """
+        Process a neighbor node during A* algorithm.
+        
+        Args:
+            matrix (list): The maze represented as a 2D list.
+            current (tuple): The current node.
+            neighbor (tuple): The neighbor node.
+            goal (tuple): The goal node.
+            open_set (list): The priority queue of open nodes.
+            came_from (dict): The dictionary mapping nodes to their predecessors.
+            g_score (dict): The dictionary mapping nodes to their g-scores.
+            f_score (dict): The dictionary mapping nodes to their f-scores.
+            rows (int): The number of rows in the maze.
+            cols (int): The number of columns in the maze.
+        """
         if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and matrix[neighbor[0]][neighbor[1]] == 0:
             tentative_g_score = g_score[current] + self.heuristic(current, neighbor)
             if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
@@ -99,7 +138,17 @@ class AStarApplication:
                 heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
     def astar(self, matrix, start, goal):
-        """A* pathfinding algorithm."""
+        """
+        A* pathfinding algorithm.
+        
+        Args:
+            matrix (list): The maze represented as a 2D list.
+            start (tuple): The start node coordinates.
+            goal (tuple): The goal node coordinates.
+
+        Yields:
+            tuple: The current node, open set, and came_from dictionary at each step.
+        """
         rows = len(matrix)
         cols = len(matrix[0])
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
@@ -122,7 +171,12 @@ class AStarApplication:
         yield None, None, None
 
     def apply_predefined_settings(self, settings):
-        """Apply predefined settings and start visualization."""
+        """
+        Apply predefined settings and start visualization.
+        
+        Args:
+            settings (dict): The predefined settings.
+        """
         self.handle_updated_settings(settings)
 
 if __name__ == "__main__":
