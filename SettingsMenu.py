@@ -51,46 +51,39 @@ class SettingsMenu(QDialog):
         self.setWindowTitle('Settings Menu')
         self.layout = QVBoxLayout(self)
         
-        # Window size configuration
-        self.setupWindowSizeConfig()
-
-        # Dark mode configuration
-        self.setupDarkModeConfig()
-
-        # Color configuration
-        self.setupColorConfig()
-
-        # Maze configuration
-        self.setupMazeConfig()
-        self.insertMazeButton = QPushButton("Insert Maze")
-        self.insertMazeButton.clicked.connect(self.insertMaze)
-        self.layout.addWidget(self.insertMazeButton)
-
-        # Heuristic configuration
-        self.setupHeuristicConfig()
-
-        # Random maze configuration
-        self.setupRandomMazeConfig()
-
-        # Save button
-        self.saveButton = QPushButton("Save Settings")
-        self.saveButton.clicked.connect(self.saveSettings)
-        self.layout.addWidget(self.saveButton)
-        self.rejected.connect(self.useDefaultSettings)
+        self.setup_ui()
 
         # Apply dark mode by default
         self.applyDarkMode(True)
         self.rejected.connect(self.useDefaultSettings)
         self.accepted.connect(self.on_accepted)
 
+    def setup_ui(self):
+        """Set up the UI components."""
+        self.setupWindowSizeConfig()
+        self.setupDarkModeConfig()
+        self.setupColorConfig()
+        self.setupMazeConfig()
+        self.setupHeuristicConfig()
+        self.setupRandomMazeConfig()
+        self.setupButtons()
+
+    def setupButtons(self):
+        """Set up the buttons for the settings menu."""
+        self.insertMazeButton = QPushButton("Insert Maze")
+        self.insertMazeButton.clicked.connect(self.insertMaze)
+        self.layout.addWidget(self.insertMazeButton)
+
+        self.saveButton = QPushButton("Save Settings")
+        self.saveButton.clicked.connect(self.saveSettings)
+        self.layout.addWidget(self.saveButton)
+
     def on_accepted(self):
         """Emit the menu_closed signal when the dialog is accepted."""
         self.menu_closed.emit()
 
     def setupRandomMazeConfig(self):
-        """
-        Setup configuration for random maze settings.
-        """
+        """Setup configuration for random maze settings."""
         self.randomMazeLayout = QHBoxLayout()
         self.randomMazeCheckBox = QCheckBox("Random Maze")
         self.randomMazeCheckBox.stateChanged.connect(self.randomMazeCheckBoxLogic)
@@ -99,9 +92,7 @@ class SettingsMenu(QDialog):
         self.layout.addLayout(self.randomMazeLayout)
 
     def randomMazeCheckBoxLogic(self):
-        """
-        Logic for handling random maze checkbox state changes.
-        """
+        """Logic for handling random maze checkbox state changes."""
         logging.debug("RandomMazeCheckBox toggled")
         if self.randomMazeCheckBox.isChecked():
             self.insertMazeButton.hide()
@@ -113,9 +104,7 @@ class SettingsMenu(QDialog):
             self.insertMazeButton.show()
 
     def insertMaze(self):
-        """
-        Open dialog to insert a custom maze.
-        """
+        """Open dialog to insert a custom maze."""
         logging.debug("Inserting maze")
         self.mazeCells = {}
         try:
@@ -150,9 +139,7 @@ class SettingsMenu(QDialog):
         self.mazeDialog.exec_()
 
     def updateMazeCell(self, row, col, checked):
-        """
-        Update the state of a maze cell.
-        """
+        """Update the state of a maze cell."""
         if checked:
             self.mazeCells[(row, col)].setStyleSheet("background-color: black; border: 1px solid #ccc;")
             self.mazeArray[row][col] = 1
@@ -161,9 +148,7 @@ class SettingsMenu(QDialog):
             self.mazeArray[row][col] = 0
 
     def setupWindowSizeConfig(self):
-        """
-        Setup configuration for window size settings.
-        """
+        """Setup configuration for window size settings."""
         logging.debug("Setting up window size config")
         self.sizeLayout = QHBoxLayout()
 
@@ -186,9 +171,7 @@ class SettingsMenu(QDialog):
         self.layout.addLayout(self.sizeLayout)
 
     def setupDarkModeConfig(self):
-        """
-        Setup configuration for dark mode settings.
-        """
+        """Setup configuration for dark mode settings."""
         logging.debug("Setting up dark mode config")
         self.darkModeLayout = QHBoxLayout()
         self.darkModeCheckBox = QCheckBox("Dark Mode")
@@ -198,17 +181,13 @@ class SettingsMenu(QDialog):
         self.layout.addLayout(self.darkModeLayout)
 
     def toggleDarkMode(self, state):
-        """
-        Toggle dark mode based on the checkbox state.
-        """
+        """Toggle dark mode based on the checkbox state."""
         logging.debug("Toggling dark mode")
         dark_mode = state == Qt.Checked
         self.applyDarkMode(dark_mode)
 
     def applyDarkMode(self, enabled):
-        """
-        Apply dark mode styles to the dialog.
-        """
+        """Apply dark mode styles to the dialog."""
         if enabled:
             self.setStyleSheet("""
                 QDialog {
@@ -243,18 +222,14 @@ class SettingsMenu(QDialog):
         self.updateColorSwatches()
 
     def updateColorSwatches(self):
-        """
-        Update the color swatches based on the current color settings.
-        """
+        """Update the color swatches based on the current color settings."""
         for color_key, default_color in self.colorSettings.items():
             swatch = self.findChild(QLabel, color_key)
             if swatch:
                 swatch.setStyleSheet(f"background-color: {default_color}; border: 1px solid #555555;")
 
     def setupColorConfig(self):
-        """
-        Setup configuration for color settings.
-        """
+        """Setup configuration for color settings."""
         logging.debug("Setting up color config")
         self.colorConfigLayout = QGridLayout()
         self.colorSettings = DARK_MODE_COLORS.copy()
@@ -306,9 +281,7 @@ class SettingsMenu(QDialog):
             swatch.setStyleSheet(f"background-color: {color.name()}; border: 1px solid #555555;")
 
     def setupMazeConfig(self):
-        """
-        Setup configuration for maze settings.
-        """
+        """Setup configuration for maze settings."""
         logging.debug("Setting up maze config")
         self.MazeSizeLayout = QHBoxLayout()
         self.MazeSizeLabel = QLabel("Maze Size:")
@@ -348,9 +321,7 @@ class SettingsMenu(QDialog):
         self.layout.addLayout(self.endPointLayout)
 
     def setupHeuristicConfig(self):
-        """
-        Setup configuration for heuristic settings.
-        """
+        """Setup configuration for heuristic settings."""
         logging.debug("Setting up heuristic config")
         self.heuristicLayout = QHBoxLayout()
         self.heuristicLabel = QLabel("Heuristic:")
@@ -449,9 +420,7 @@ class SettingsMenu(QDialog):
             return None, None
 
     def useDefaultSettings(self):
-        """
-        Use default settings if the dialog is rejected.
-        """
+        """Use default settings if the dialog is rejected."""
         logging.debug("Using default settings")
         default_settings = {
             'window_width': DEFAULT_WINDOW_WIDTH,
