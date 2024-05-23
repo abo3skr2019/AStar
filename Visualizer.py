@@ -178,6 +178,7 @@ class Visualizer(QObject):
                 if self.bypass_settings:
                     logging.debug("Bypass settings is True. Quitting application.")
                     self.quit_application()
+                    exit()
                 else:
                     self.wait_for_user_action()
                 return
@@ -191,6 +192,9 @@ class Visualizer(QObject):
         """
         Waits for user action after the visualization is complete.
         """
+        if self.bypass_settings:
+            logging.debug("Why are you HEEEEEEEEEERE.Quit the application.")
+            return
         logging.debug("Waiting for user action")
         msgBox = QMessageBox()
         msgBox.setText("The pathfinding visualization is complete.")
