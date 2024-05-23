@@ -1,3 +1,5 @@
+# SettingsMenu.py
+
 from PyQt5.QtWidgets import (QApplication, QDialog, QVBoxLayout, QLabel, QLineEdit, 
                              QPushButton, QColorDialog, QSpinBox, QHBoxLayout, 
                              QComboBox, QMessageBox, QDialogButtonBox, QGridLayout, 
@@ -36,9 +38,8 @@ DARK_MODE_COLORS = {
 }
 
 class SettingsMenu(QDialog):
-    settings_updated = pyqtSignal(dict)
-    menu_closed = pyqtSignal()
-
+    settings_updated = pyqtSignal(dict)  # Signal emitted when settings are updated
+    menu_closed = pyqtSignal()  # Signal emitted when menu is closed
 
     def __init__(self, parent=None):
         """
@@ -67,6 +68,8 @@ class SettingsMenu(QDialog):
 
         # Heuristic configuration
         self.setupHeuristicConfig()
+
+        # Random maze configuration
         self.setupRandomMazeConfig()
 
         # Save button
@@ -80,11 +83,9 @@ class SettingsMenu(QDialog):
         self.rejected.connect(self.useDefaultSettings)
         self.accepted.connect(self.on_accepted)
 
-
     def on_accepted(self):
         """Emit the menu_closed signal when the dialog is accepted."""
         self.menu_closed.emit()
-
 
     def setupRandomMazeConfig(self):
         """
@@ -184,7 +185,6 @@ class SettingsMenu(QDialog):
 
         self.layout.addLayout(self.sizeLayout)
 
-
     def setupDarkModeConfig(self):
         """
         Setup configuration for dark mode settings.
@@ -269,7 +269,6 @@ class SettingsMenu(QDialog):
                 row += 1
 
         self.layout.addLayout(self.colorConfigLayout)
-
 
     def createColorPicker(self, color_key, default_color, row, col):
         """
@@ -450,6 +449,9 @@ class SettingsMenu(QDialog):
             return None, None
 
     def useDefaultSettings(self):
+        """
+        Use default settings if the dialog is rejected.
+        """
         logging.debug("Using default settings")
         default_settings = {
             'window_width': DEFAULT_WINDOW_WIDTH,
@@ -484,6 +486,9 @@ class SettingsMenu(QDialog):
         return self.mazeArray
 
     def saveSettings(self):
+        """
+        Save the settings and emit the settings_updated signal.
+        """
         logging.debug("Saving settings")
         if not self.validateInputs():
             return
@@ -511,5 +516,3 @@ class SettingsMenu(QDialog):
             settings.update({'obstacle_density': obstacle_density})
         self.settings_updated.emit(settings)
         self.accept()  # Close the settings menu
-
-

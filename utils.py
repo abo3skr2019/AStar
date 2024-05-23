@@ -1,6 +1,19 @@
+# utils.py
+
 import random
 
 def reconstruct_path(came_from, current, start):
+    """
+    Reconstruct the path from start to goal using the came_from dictionary.
+
+    Args:
+        came_from (dict): The dictionary containing the path.
+        current (tuple): The current node.
+        start (tuple): The start node.
+
+    Returns:
+        list: The reconstructed path.
+    """
     path = []
     while current in came_from:
         path.append(current)
@@ -8,7 +21,6 @@ def reconstruct_path(came_from, current, start):
     path.append(start)
     path.reverse()
     return path
-
 
 def generate_maze(size, obstacle_density):
     """

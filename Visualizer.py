@@ -9,7 +9,7 @@ from utils import reconstruct_path
 import sys
 
 class Visualizer(QObject):
-    visualization_complete = pyqtSignal()
+    visualization_complete = pyqtSignal()  # Signal emitted when visualization is complete
 
     def __init__(self, maze, start, goal, astar_function, settings, bypass_settings=False):
         super().__init__()  # Initialize QObject
@@ -64,6 +64,7 @@ class Visualizer(QObject):
             self.show_reopen_settings_dialog("End node is surrounded by obstacles.")
             return
 
+        # Convert colors from hex to RGB
         start_color = QColor(self.settings['start_node_color']).getRgb()[:3]
         end_color = QColor(self.settings['end_node_color']).getRgb()[:3]
         path_color = QColor(self.settings['path_color']).getRgb()[:3]
@@ -71,6 +72,7 @@ class Visualizer(QObject):
         background_color = QColor(self.settings['background_color']).getRgb()[:3]
         expanded_node_color = QColor(self.settings['expanded_node_color']).getRgb()[:3]
 
+        # Create a color maze representation for visualization
         self.color_maze = np.array([obstacle_color if cell == 1 else background_color for row in self.maze for cell in row], dtype=np.ubyte).reshape((len(self.maze[0]), len(self.maze), 3)).transpose((1, 0, 2))
 
         img_item = pg.ImageItem(image=self.color_maze)
@@ -152,5 +154,4 @@ class Visualizer(QObject):
 
     def quit_application(self):
         """Quit the application."""
-        #QTimer.singleShot(1600, QApplication.instance().exit)
         QApplication.instance().exit()
