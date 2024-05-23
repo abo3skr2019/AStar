@@ -7,22 +7,13 @@ from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 from PyQt5.QtGui import QColor
 from utils import reconstruct_path
 import sys
+import logging
 
 class Visualizer(QObject):
     visualization_complete = pyqtSignal()  # Signal emitted when visualization is complete
 
     def __init__(self, maze, start, goal, astar_function, settings, bypass_settings=False):
-        """
-        Initialize the Visualizer object.
-        
-        Args:
-            maze (list): The maze represented as a 2D list.
-            start (tuple): The start node coordinates.
-            goal (tuple): The goal node coordinates.
-            astar_function (function): The A* algorithm function.
-            settings (dict): Settings for the visualization.
-            bypass_settings (bool): Flag to bypass settings.
-        """
+        logging.debug("Initializing Visualizer")
         super().__init__()  # Initialize QObject
         self.maze = maze
         self.start = start
@@ -38,30 +29,15 @@ class Visualizer(QObject):
         self.color_maze = None
 
     def end_is_obstacle(self):
-        """
-        Check if the end node is an obstacle.
-        
-        Returns:
-            bool: True if the end or start node is an obstacle, False otherwise.
-        """
         if self.maze[self.goal[0]][self.goal[1]] == 1:
-            print("End node is an obstacle.")
+            logging.debug("End node is an obstacle.")
             return True
         if self.maze[self.start[0]][self.start[1]] == 1:
-            print("Start node is an obstacle.")
+            logging.debug("Start node is an obstacle.")
             return True
         return False
 
     def is_surrounded(self, node):
-        """
-        Check if a node is surrounded by obstacles.
-        
-        Args:
-            node (tuple): The node to check.
-
-        Returns:
-            bool: True if the node is surrounded, False otherwise.
-        """
         rows, cols = len(self.maze), len(self.maze[0])
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
         for dx, dy in directions:
@@ -71,9 +47,8 @@ class Visualizer(QObject):
         return True
 
     def visualize(self):
-        """Visualize the A* pathfinding algorithm."""
-        print("Visualizing A* pathfinding algorithm")
-        print(f"\nSettings: {self.settings}\nStart node: {self.start}\nEnd node: {self.goal}\nMaze: {self.maze}\n")
+        logging.debug("Starting A* visualization")
+        logging.debug(f"\nSettings: {self.settings}\nStart node: {self.start}\nEnd node: {self.goal}\nMaze: {self.maze}\n")
 
         if self.end_is_obstacle() or self.is_surrounded(self.start) or self.is_surrounded(self.goal):
             self.handle_invalid_nodes()
@@ -86,24 +61,22 @@ class Visualizer(QObject):
         self.astar_visualized(img_item)
 
     def handle_invalid_nodes(self):
-        """Handle scenarios where start or end nodes are invalid."""
+        logging.debug("Handling invalid nodes")
         if self.end_is_obstacle():
-            print("End or Start node is an obstacle.")
+            logging.debug("End or Start node is an obstacle.")
             self.show_reopen_settings_dialog("End or Start node is an obstacle.")
         elif self.is_surrounded(self.start):
-            print("Start node is surrounded by obstacles.")
+            logging.debug("Start node is surrounded by obstacles.")
             self.show_reopen_settings_dialog("Start node is surrounded by obstacles.")
         elif self.is_surrounded(self.goal):
-            print("End node is surrounded by obstacles.")
+            logging.debug("End node is surrounded by obstacles.")
             self.show_reopen_settings_dialog("End node is surrounded by obstacles.")
 
     def prepare_color_maze(self):
-        """Prepare the color maze representation for visualization."""
         self.convert_colors()
         self.color_maze = np.array([self.obstacle_color if cell == 1 else self.background_color for row in self.maze for cell in row], dtype=np.ubyte).reshape((len(self.maze[0]), len(self.maze), 3)).transpose((1, 0, 2))
 
     def convert_colors(self):
-        """Convert color settings from hex to RGB."""
         self.start_color = QColor(self.settings['start_node_color']).getRgb()[:3]
         self.end_color = QColor(self.settings['end_node_color']).getRgb()[:3]
         self.path_color = QColor(self.settings['path_color']).getRgb()[:3]
@@ -112,24 +85,10 @@ class Visualizer(QObject):
         self.expanded_node_color = QColor(self.settings['expanded_node_color']).getRgb()[:3]
 
     def update_cell(self, img_item, cell, color):
-        """
-        Update the color of a cell in the maze.
-        
-        Args:
-            img_item (ImageItem): The image item to update.
-            cell (tuple): The cell coordinates.
-            color (tuple): The RGB color.
-        """
         self.color_maze[cell[1], cell[0]] = color
         img_item.setImage(image=self.color_maze)
 
     def draw_path(self, path):
-        """
-        Draw the path on the visualization.
-        
-        Args:
-            path (list): The path to draw.
-        """
         for i in range(len(path) - 1):
             x = [path[i][0], path[i + 1][0]]
             y = [path[i][1], path[i + 1][1]]
@@ -138,17 +97,12 @@ class Visualizer(QObject):
             QApplication.processEvents()
 
     def astar_visualized(self, img_item):
-        """
-        Visualize the A* algorithm step by step.
-        
-        Args:
-            img_item (ImageItem): The image item to update.
-        """
         self.update_cell(img_item, self.start, self.start_color)
         self.update_cell(img_item, self.goal, self.end_color)
 
         for current, open_set, came_from in self.astar_function(self.maze, self.start, self.goal):
             if current is None:
+                logging.warning("No path found. Closing application.")
                 QMessageBox.warning(None, "Pathfinding Warning", "No path found. The application will close in 2 seconds.")
                 QTimer.singleShot(1600, QApplication.instance().exit)
                 return
@@ -158,8 +112,9 @@ class Visualizer(QObject):
             else:
                 path = reconstruct_path(came_from, current, self.start)
                 self.draw_path(path)
-                print("Path found:", path)
+                logging.debug(f"Path found: {path}")
                 if self.bypass_settings:
+                    logging.debug("Bypass settings is True. Quitting application.")
                     self.quit_application()
                 else:
                     self.wait_for_user_action()
@@ -171,7 +126,7 @@ class Visualizer(QObject):
             QApplication.processEvents()
 
     def wait_for_user_action(self):
-        """Wait for user action before completing the visualization."""
+        logging.debug("Waiting for user action")
         msgBox = QMessageBox()
         msgBox.setText("The pathfinding visualization is complete.")
         msgBox.setInformativeText("Click Ok to restart with different parameters, or Cancel to exit.")
@@ -181,15 +136,11 @@ class Visualizer(QObject):
             self.close_visualizer()  # Close the visualizer window
             self.visualization_complete.emit()  # Emit the signal to reopen the settings menu
         else:
+            logging.debug("User chose to exit the application")
             sys.exit()  # Properly close the application
 
     def show_reopen_settings_dialog(self, message):
-        """
-        Show a message box to reopen settings or exit.
-        
-        Args:
-            message (str): The message to display.
-        """
+        logging.debug(f"Showing reopen settings dialog: {message}")
         msgBox = QMessageBox()
         msgBox.setText(message)
         msgBox.setInformativeText("Click Ok to reopen the settings menu, or Cancel to exit.")
@@ -199,12 +150,13 @@ class Visualizer(QObject):
             self.close_visualizer()  # Close the visualizer window
             self.visualization_complete.emit()  # Emit the signal to reopen the settings menu
         else:
+            logging.debug("User chose to exit the application")
             sys.exit()  # Properly close the application
 
     def close_visualizer(self):
-        """Close the visualizer window."""
+        logging.debug("Closing visualizer window")
         self.win.close()
 
     def quit_application(self):
-        """Quit the application."""
+        logging.debug("Quitting application")
         QApplication.instance().exit()

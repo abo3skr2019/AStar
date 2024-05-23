@@ -1,9 +1,13 @@
 # main.py
+
+import logging
 from AstarApplication import AStarApplication
 import sys
 
+logging.debug("Starting main.py")
+
 if __name__ == "__main__":
-    print("Running main.py")
+    logging.debug("Initializing predefined settings")
     predefined_settings = {
         'window_width': 600,
         'window_height': 600,

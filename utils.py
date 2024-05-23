@@ -1,19 +1,12 @@
 # utils.py
 
 import random
+import logging
+
+def setup_logging():
+    logging.basicConfig(filename='application.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def reconstruct_path(came_from, current, start):
-    """
-    Reconstruct the path from start to goal using the came_from dictionary.
-
-    Args:
-        came_from (dict): The dictionary containing the path.
-        current (tuple): The current node.
-        start (tuple): The start node.
-
-    Returns:
-        list: The reconstructed path.
-    """
     path = []
     while current in came_from:
         path.append(current)
@@ -23,19 +16,12 @@ def reconstruct_path(came_from, current, start):
     return path
 
 def generate_maze(size, obstacle_density):
-    """
-    Generate a random maze with given size and obstacle density.
-
-    Args:
-        size (int): The size of the maze.
-        obstacle_density (float): The density of obstacles in the maze.
-
-    Returns:
-        list: A 2D list representing the maze.
-    """
     maze = [[0 for _ in range(size)] for _ in range(size)]
     for i in range(size):
         for j in range(size):
             if random.uniform(0, 1) < obstacle_density:
                 maze[i][j] = 1
     return maze
+
+# Call setup_logging to configure logging when this module is imported
+setup_logging()
