@@ -1,13 +1,11 @@
-# main.py
-
 import logging
 from AstarApplication import AStarApplication
 import sys
 
-logging.debug("Starting main.py")
+def main():
+    logging.basicConfig(filename='application.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.debug("Starting main.py")
 
-if __name__ == "__main__":
-    logging.debug("Initializing predefined settings")
     predefined_settings = {
         'window_width': 600,
         'window_height': 600,
@@ -34,6 +32,10 @@ if __name__ == "__main__":
             [0, 0, 0, 1, 1, 1, 0, 1, 0, 0],
         ],
     }
+
     bypass_settings = True
     astar_app = AStarApplication(bypass_settings=bypass_settings, predefined_settings=predefined_settings)
     sys.exit(astar_app.app.exec_())
+
+if __name__ == "__main__":
+    main()
