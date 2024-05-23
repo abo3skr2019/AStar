@@ -1,3 +1,5 @@
+# Visualizer.py
+
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMessageBox
@@ -9,13 +11,14 @@ import sys
 class Visualizer(QObject):
     visualization_complete = pyqtSignal()
 
-    def __init__(self, maze, start, goal, astar_function, settings):
+    def __init__(self, maze, start, goal, astar_function, settings, bypass_settings=False):
         super().__init__()  # Initialize QObject
         self.maze = maze
         self.start = start
         self.goal = goal
         self.astar_function = astar_function
         self.settings = settings
+        self.bypass_settings = bypass_settings  # Store the bypass_settings flag
         self.win = pg.GraphicsLayoutWidget(show=True, title="A* Visualization")
         self.win.resize(settings['window_width'], settings['window_height'])
         self.view = self.win.addViewBox()
@@ -106,7 +109,10 @@ class Visualizer(QObject):
                 path = reconstruct_path(came_from, current, self.start)
                 self.draw_path(path)
                 print("Path found:", path)
-                self.wait_for_user_action()
+                if self.bypass_settings:
+                    self.quit_application()
+                else:
+                    self.wait_for_user_action()
                 return
 
             if current == self.start:
@@ -143,3 +149,8 @@ class Visualizer(QObject):
     def close_visualizer(self):
         """Close the visualizer window."""
         self.win.close()
+
+    def quit_application(self):
+        """Quit the application."""
+        #QTimer.singleShot(1600, QApplication.instance().exit)
+        QApplication.instance().exit()

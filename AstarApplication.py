@@ -1,3 +1,5 @@
+# AStarApplication.py
+
 import sys
 import random
 import numpy as np
@@ -10,7 +12,7 @@ from Visualizer import Visualizer
 from utils import reconstruct_path
 
 class AStarApplication:
-    def __init__(self):
+    def __init__(self, bypass_settings=False, predefined_settings=None):
         """Initialize the AStarApplication."""
         self.app = QApplication.instance() or QApplication(sys.argv)
         self.maze = None
@@ -20,13 +22,18 @@ class AStarApplication:
         self.settings_applied = False
         self.visualizer = None
         self.settings_dialog = None  # Reference to settings dialog
+        self.bypass_settings = bypass_settings  # Store the bypass_settings flag
         print("AStarApplication initialized.")
-        self.open_settings_menu()
+
+        if bypass_settings and predefined_settings:
+            self.apply_predefined_settings(predefined_settings)
+        else:
+            self.open_settings_menu()
 
     def start_visualization(self, settings):
         """Start the visualization."""
         print("Starting visualization")
-        self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings)
+        self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings, self.bypass_settings)
         self.visualizer.visualization_complete.connect(self.on_visualization_complete)  # Connect signal
         self.visualizer.visualize()
 
@@ -114,8 +121,40 @@ class AStarApplication:
 
         yield None, None, None
 
+    def apply_predefined_settings(self, settings):
+        """Apply predefined settings and start visualization."""
+        self.handle_updated_settings(settings)
+
 if __name__ == "__main__":
-    print("Initializing A* application")
-    astar_app = AStarApplication()
-    print("Executing QApplication event loop")
+    predefined_settings = {
+        'window_width': 600,
+        'window_height': 600,
+        'Maze_size': 10,
+        'start_point': (0, 0),
+        'end_point': (9, 9),
+        'heuristic': 'octile',
+        'start_node_color': '#00FF00',
+        'end_node_color': '#FFD700',
+        'path_color': '#0000FF',
+        'obstacle_color': '#000000',
+        'background_color': '#1E1E1E',
+        'expanded_node_color': '#808080',
+        'maze': [
+            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 1, 0, 1, 0, 1, 1, 0],
+            [0, 1, 0, 0, 0, 1, 0, 0, 1, 0],
+            [0, 1, 1, 1, 0, 1, 1, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 0, 1, 0, 0],
+        ],
+    }
+
+    # Set bypass_settings to True to skip the settings menu and use predefined settings
+    bypass_settings = True
+
+    astar_app = AStarApplication(bypass_settings=bypass_settings, predefined_settings=predefined_settings)
     sys.exit(astar_app.app.exec_())

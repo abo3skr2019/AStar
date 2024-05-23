@@ -6,6 +6,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtCore import pyqtSignal, Qt
 import random
 import logging
+from utils import generate_maze
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -347,26 +348,6 @@ class SettingsMenu(QDialog):
         self.layout.addLayout(self.startPointLayout)
         self.layout.addLayout(self.endPointLayout)
 
-    def generate_maze(self, size, obstacle_density):
-        """
-        Generate a random maze with given size and obstacle density.
-
-        Args:
-            size (int): The size of the maze.
-            obstacle_density (float): The density of obstacles in the maze.
-
-        Returns:
-            list: A 2D list representing the maze.
-        """
-        logging.debug("Generating maze")
-        maze = [[0 for _ in range(size)] for _ in range(size)]
-        for i in range(size):
-            for j in range(size):
-                if random.uniform(0, 1) < obstacle_density:
-                    maze[i][j] = 1
-        logging.debug(f"Maze generated: {maze}")
-        return maze
-
     def setupHeuristicConfig(self):
         """
         Setup configuration for heuristic settings.
@@ -484,7 +465,7 @@ class SettingsMenu(QDialog):
             'obstacle_color': DARK_MODE_COLORS['obstacle_color'],
             'background_color': DARK_MODE_COLORS['background_color'],
             'expanded_node_color': DARK_MODE_COLORS['expanded_node_color'],  # Add this line
-            'maze': self.generate_maze(DEFAULT_MAZE_SIZE, DEFAULT_OBSTACLE_DENSITY),
+            'maze': generate_maze(DEFAULT_MAZE_SIZE, DEFAULT_OBSTACLE_DENSITY),
         }
         self.settings_updated.emit(default_settings)
 
@@ -499,7 +480,7 @@ class SettingsMenu(QDialog):
         if self.randomMazeCheckBox.isChecked():
             maze_size = int(self.MazeSizeLineEdit.text())
             obstacle_density = float(self.obstacleDensityLineEdit.text())
-            self.mazeArray = self.generate_maze(maze_size, obstacle_density)
+            self.mazeArray = generate_maze(maze_size, obstacle_density)
         return self.mazeArray
 
     def saveSettings(self):
