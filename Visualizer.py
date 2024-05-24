@@ -187,7 +187,6 @@ class Visualizer(QObject):
 
             QApplication.processEvents()
 
-# In Visualizer class
     def wait_for_user_action(self):
         """
         Waits for user action after the visualization is complete.
