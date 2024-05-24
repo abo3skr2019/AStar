@@ -52,26 +52,27 @@ class SettingsMenu(QDialog):
 
         # Apply dark mode by default
         self.applyDarkMode(True)
-        self.rejected.connect(self.useDefaultSettings)
         self.accepted.connect(self.on_accepted)
+        self.rejected.connect(self.on_rejected)
+    def on_rejected(self): 
+        exit()
 
     def setup_ui(self):
         self.setupWindowSizeConfig()
         self.setupDarkModeConfig()
         self.setupColorConfig()
-        self.setupMazeConfig()
         self.setupHeuristicConfig()
+        self.setupMazeConfig()
         self.setupRandomMazeConfig()
+
         self.setupButtons()
 
-    def setupButtons(self):
-        self.insertMazeButton = QPushButton("Insert Maze")
-        self.insertMazeButton.clicked.connect(self.insertMaze)
-        self.layout.addWidget(self.insertMazeButton)
 
+    def setupButtons(self):
         self.saveButton = QPushButton("Save Settings")
         self.saveButton.clicked.connect(self.saveSettings)
         self.layout.addWidget(self.saveButton)
+
 
     def on_accepted(self):
         self.menu_closed.emit()
@@ -79,13 +80,22 @@ class SettingsMenu(QDialog):
     def setupRandomMazeConfig(self):
         self.randomMazeLayout = QHBoxLayout()
         self.randomMazeCheckBox = QCheckBox("Random Maze")
+        self.randomMazeLayout.addWidget(self.randomMazeCheckBox)
+
+        self.insertMazeButton = QPushButton("Insert Maze")
+        self.insertMazeButton.clicked.connect(self.insertMaze)
+
         self.randomMazeCheckBox.stateChanged.connect(self.randomMazeCheckBoxLogic)
         self.randomMazeCheckBox.setChecked(True)
-        self.randomMazeLayout.addWidget(self.randomMazeCheckBox)
         self.layout.addLayout(self.randomMazeLayout)
+        self.layout.addWidget(self.insertMazeButton)
+
 
     def randomMazeCheckBoxLogic(self):
         logging.debug("RandomMazeCheckBox toggled")
+        if not hasattr(self, 'insertMazeButton'):
+            logging.error("insertMazeButton not initialized.")
+            return
         if self.randomMazeCheckBox.isChecked():
             self.insertMazeButton.hide()
             self.obstacleDensityLabel.show()
@@ -94,6 +104,7 @@ class SettingsMenu(QDialog):
             self.obstacleDensityLabel.hide()
             self.obstacleDensityLineEdit.hide()
             self.insertMazeButton.show()
+
 
     def insertMaze(self):
         logging.debug("Inserting maze")

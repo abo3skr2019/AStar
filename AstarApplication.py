@@ -30,7 +30,7 @@ class AStarApplication:
         self._initialize_app()
         self._initialize_settings(bypass_settings, predefined_settings)
         logging.debug("AStarApplication initialized.")
-
+        
     def _initialize_app(self):
         """
         Initializes the application and default values.
@@ -45,6 +45,7 @@ class AStarApplication:
         self.visualizer = None
         self.settings_dialog = None  # Reference to settings dialog
 
+
     def _initialize_settings(self, bypass_settings, predefined_settings):
         """
         Initializes the settings for the application.
@@ -54,6 +55,7 @@ class AStarApplication:
             predefined_settings (dict): Predefined settings for the application.
         """
         logging.debug(f"Initializing settings (bypass_settings={bypass_settings})")
+
         self.bypass_settings = bypass_settings  # Store the bypass_settings flag
         if bypass_settings and predefined_settings:
             self.apply_predefined_settings(predefined_settings)
@@ -68,6 +70,7 @@ class AStarApplication:
             settings (dict): Settings for the visualization.
         """
         logging.debug("Starting visualization")
+
         self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings, self.bypass_settings)
         self.visualizer.visualization_complete.connect(self.on_visualization_complete)  # Connect signal
         self.visualizer.visualize()
@@ -77,6 +80,8 @@ class AStarApplication:
         Opens the settings menu for user input.
         """
         logging.debug("Opening settings menu")
+
+
         if self.settings_dialog is not None and self.settings_dialog.isVisible():
             logging.debug("Closing existing settings menu.")
             self.settings_dialog.close()
@@ -111,9 +116,14 @@ class AStarApplication:
         """
         Called when the visualization is complete.
         """
+
+        
+        if not self.settings_applied:  # Only reopen if settings were not applied correctly
+            self.open_settings_menu()
+        else:
+            logging.debug("Settings applied, not reopening settings menu.")
+
         logging.debug("Visualization complete, reopening settings menu.")
-        self.settings_applied = False  # Reset the flag
-        self.open_settings_menu()
 
     def on_settings_menu_closed(self):
         """

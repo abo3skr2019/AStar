@@ -187,12 +187,14 @@ class Visualizer(QObject):
 
             QApplication.processEvents()
 
+# In Visualizer class
     def wait_for_user_action(self):
         """
         Waits for user action after the visualization is complete.
         """
+        logging.debug("Showing message box for user action.")
         if self.bypass_settings:
-            logging.debug("Why are you HEEEEEEEEEERE.Quit the application.")
+            logging.debug("Bypass settings is True. Quitting application.")
             return
         logging.debug("Waiting for user action")
         msgBox = QMessageBox()
@@ -200,12 +202,15 @@ class Visualizer(QObject):
         msgBox.setInformativeText("Click Ok to restart with different parameters, or Cancel to exit.")
         msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         result = msgBox.exec_()
+        logging.debug("Message box result: %s", result)
         if result == QMessageBox.Ok:
+            logging.debug("User chose to reopen settings menu.")
             self.close_visualizer()  # Close the visualizer window
             self.visualization_complete.emit()  # Emit the signal to reopen the settings menu
         else:
             logging.debug("User chose to exit the application")
             sys.exit()  # Properly close the application
+
 
     def show_reopen_settings_dialog(self, message):
         """
