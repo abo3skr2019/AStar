@@ -1,13 +1,12 @@
-# Visualizer.py
-
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 from PyQt5.QtGui import QColor
 from utils import reconstruct_path
-import sys
 import logging
+import sys
+
 
 class Visualizer(QObject):
     """
@@ -209,7 +208,6 @@ class Visualizer(QObject):
         else:
             logging.debug("User chose to exit the application")
             sys.exit()  # Properly close the application
-
 
     def show_reopen_settings_dialog(self, message):
         """

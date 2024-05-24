@@ -1,19 +1,13 @@
-# SettingsMenu.py
-
 from PyQt5.QtWidgets import (QApplication, QDialog, QVBoxLayout, QLabel, QLineEdit, 
                              QPushButton, QColorDialog, QSpinBox, QHBoxLayout, 
                              QComboBox, QMessageBox, QDialogButtonBox, QGridLayout, 
                              QCheckBox)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import pyqtSignal, Qt
-import random
 import logging
 from utils import generate_maze
 
-# Logging is already configured by utils.py
-logging.debug("Initializing SettingsMenu")
 
-# Constants for default values
 DEFAULT_WINDOW_WIDTH = 600
 DEFAULT_WINDOW_HEIGHT = 600
 DEFAULT_MAZE_SIZE = 10
@@ -25,17 +19,17 @@ DEFAULT_COLORS = {
     'path_color': '#0000FF',
     'obstacle_color': '#000000',
     'background_color': '#FFFFFF',
-    'expanded_node_color': '#808080'  # Add this line
+    'expanded_node_color': '#808080'
 }
-
 DARK_MODE_COLORS = {
     'start_node_color': '#00FF00',
     'end_node_color': '#FFD700',
     'path_color': '#0000FF',
     'obstacle_color': '#000000',
     'background_color': '#1E1E1E',
-    'expanded_node_color': '#808080'  # Add this line
+    'expanded_node_color': '#808080'
 }
+
 
 class SettingsMenu(QDialog):
     settings_updated = pyqtSignal(dict)  # Signal emitted when settings are updated
@@ -47,13 +41,11 @@ class SettingsMenu(QDialog):
         self.mazeArray = []
         self.setWindowTitle('Settings Menu')
         self.layout = QVBoxLayout(self)
-
         self.setup_ui()
-
-        # Apply dark mode by default
         self.applyDarkMode(True)
         self.accepted.connect(self.on_accepted)
         self.rejected.connect(self.on_rejected)
+
     def on_rejected(self): 
         exit()
 
@@ -64,15 +56,12 @@ class SettingsMenu(QDialog):
         self.setupHeuristicConfig()
         self.setupMazeConfig()
         self.setupRandomMazeConfig()
-
         self.setupButtons()
-
 
     def setupButtons(self):
         self.saveButton = QPushButton("Save Settings")
         self.saveButton.clicked.connect(self.saveSettings)
         self.layout.addWidget(self.saveButton)
-
 
     def on_accepted(self):
         self.menu_closed.emit()
@@ -81,15 +70,12 @@ class SettingsMenu(QDialog):
         self.randomMazeLayout = QHBoxLayout()
         self.randomMazeCheckBox = QCheckBox("Random Maze")
         self.randomMazeLayout.addWidget(self.randomMazeCheckBox)
-
         self.insertMazeButton = QPushButton("Insert Maze")
         self.insertMazeButton.clicked.connect(self.insertMaze)
-
         self.randomMazeCheckBox.stateChanged.connect(self.randomMazeCheckBoxLogic)
         self.randomMazeCheckBox.setChecked(True)
         self.layout.addLayout(self.randomMazeLayout)
         self.layout.addWidget(self.insertMazeButton)
-
 
     def randomMazeCheckBoxLogic(self):
         logging.debug("RandomMazeCheckBox toggled")
@@ -105,7 +91,6 @@ class SettingsMenu(QDialog):
             self.obstacleDensityLineEdit.hide()
             self.insertMazeButton.show()
 
-
     def insertMaze(self):
         logging.debug("Inserting maze")
         self.mazeCells = {}
@@ -120,7 +105,6 @@ class SettingsMenu(QDialog):
         self.mazeDialog = QDialog(self)
         self.mazeDialog.setWindowTitle("Insert Maze")
         layout = QGridLayout(self.mazeDialog)
-
         for row in range(maze_size):
             for col in range(maze_size):
                 cellButton = QPushButton()
@@ -131,12 +115,10 @@ class SettingsMenu(QDialog):
                 self.mazeCells[(row, col)] = cellButton
 
         self.mazeArray = [[0 for _ in range(maze_size)] for _ in range(maze_size)]
-
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttonBox.accepted.connect(self.mazeDialog.accept)
         buttonBox.rejected.connect(self.mazeDialog.reject)
         layout.addWidget(buttonBox, maze_size, 0, 1, maze_size)
-
         self.mazeDialog.setLayout(layout)
         self.mazeDialog.exec_()
 
@@ -151,23 +133,20 @@ class SettingsMenu(QDialog):
     def setupWindowSizeConfig(self):
         logging.debug("Setting up window size config")
         self.sizeLayout = QHBoxLayout()
-
         self.widthLabel = QLabel("Window Width:")
         self.widthSpinBox = QSpinBox()
         self.widthSpinBox.setRange(100, 2000)
         self.widthSpinBox.setValue(DEFAULT_WINDOW_WIDTH)
-        self.widthSpinBox.setButtonSymbols(QSpinBox.NoButtons)  # Remove up and down arrows
+        self.widthSpinBox.setButtonSymbols(QSpinBox.NoButtons)
         self.sizeLayout.addWidget(self.widthLabel)
         self.sizeLayout.addWidget(self.widthSpinBox)
-
         self.heightLabel = QLabel("Window Height:")
         self.heightSpinBox = QSpinBox()
         self.heightSpinBox.setRange(100, 2000)
         self.heightSpinBox.setValue(DEFAULT_WINDOW_HEIGHT)
-        self.heightSpinBox.setButtonSymbols(QSpinBox.NoButtons)  # Remove up and down arrows
+        self.heightSpinBox.setButtonSymbols(QSpinBox.NoButtons)
         self.sizeLayout.addWidget(self.heightLabel)
         self.sizeLayout.addWidget(self.heightSpinBox)
-
         self.layout.addLayout(self.sizeLayout)
 
     def setupDarkModeConfig(self):
@@ -228,16 +207,14 @@ class SettingsMenu(QDialog):
         logging.debug("Setting up color config")
         self.colorConfigLayout = QGridLayout()
         self.colorSettings = DARK_MODE_COLORS.copy()
-
         row = 0
         col = 0
         for color_key, default_color in self.colorSettings.items():
             self.createColorPicker(color_key, default_color, row, col)
             col += 1
-            if col == 3:  # Adjust swatches per row
+            if col == 3:
                 col = 0
                 row += 1
-
         self.layout.addLayout(self.colorConfigLayout)
 
     def createColorPicker(self, color_key, default_color, row, col):
@@ -268,7 +245,6 @@ class SettingsMenu(QDialog):
         self.MazeSizeLineEdit.setToolTip("Enter the size of the maze (e.g., 10 for a 10x10 maze)")
         self.MazeSizeLayout.addWidget(self.MazeSizeLabel)
         self.MazeSizeLayout.addWidget(self.MazeSizeLineEdit)
-
         self.obstacleDensityLayout = QHBoxLayout()
         self.obstacleDensityLabel = QLabel("Obstacle Density:")
         self.obstacleDensityLineEdit = QLineEdit()
@@ -276,7 +252,6 @@ class SettingsMenu(QDialog):
         self.obstacleDensityLineEdit.setToolTip("Enter the obstacle density as a float between 0 and 1")
         self.obstacleDensityLayout.addWidget(self.obstacleDensityLabel)
         self.obstacleDensityLayout.addWidget(self.obstacleDensityLineEdit)
-
         self.startPointLayout = QHBoxLayout()
         self.startPointLabel = QLabel("Start Point (x,y):")
         self.startPointLineEdit = QLineEdit()
@@ -284,7 +259,6 @@ class SettingsMenu(QDialog):
         self.startPointLineEdit.setToolTip("Enter the start point coordinates (e.g., 0,0)")
         self.startPointLayout.addWidget(self.startPointLabel)
         self.startPointLayout.addWidget(self.startPointLineEdit)
-
         self.endPointLayout = QHBoxLayout()
         self.endPointLabel = QLabel("End Point (x,y):")
         self.endPointLineEdit = QLineEdit()
@@ -292,7 +266,6 @@ class SettingsMenu(QDialog):
         self.endPointLineEdit.setToolTip("Enter the end point coordinates (e.g., 9,9)")
         self.endPointLayout.addWidget(self.endPointLabel)
         self.endPointLayout.addWidget(self.endPointLineEdit)
-
         self.layout.addLayout(self.MazeSizeLayout)
         self.layout.addLayout(self.obstacleDensityLayout)
         self.layout.addLayout(self.startPointLayout)
@@ -312,23 +285,16 @@ class SettingsMenu(QDialog):
     def validateInputs(self):
         logging.debug("Validating inputs")
         valid = True
-
-        # Validate Maze Size
         maze_size = self.validateMazeSize()
         if maze_size is None:
             valid = False
-
-        # Validate Obstacle Density
         if self.randomMazeCheckBox.isChecked():
             obstacle_density = self.validateObstacleDensity()
             if obstacle_density is None:
                 valid = False
-
-        # Validate Start and End Points
         start_point, end_point = self.validateStartEndPoints(maze_size)
         if start_point is None or end_point is None:
             valid = False
-
         return valid
 
     def validateMazeSize(self):
@@ -355,15 +321,12 @@ class SettingsMenu(QDialog):
         try:
             start_point = tuple(map(int, self.startPointLineEdit.text().split(',')))
             end_point = tuple(map(int, self.endPointLineEdit.text().split(',')))
-            
             if not (0 <= start_point[0] < maze_size and 0 <= start_point[1] < maze_size):
                 raise ValueError("Start point is out of bounds.")
             if not (0 <= end_point[0] < maze_size and 0 <= end_point[1] < maze_size):
                 raise ValueError("End point is out of bounds.")
-            
             if start_point == end_point:
                 raise ValueError("Start point and end point cannot be the same.")
-            
             return start_point, end_point
         except ValueError as e:
             QMessageBox.critical(self, "Input Error", f"Start/End Point Error: {e}")
@@ -384,7 +347,7 @@ class SettingsMenu(QDialog):
             'path_color': DARK_MODE_COLORS['path_color'],
             'obstacle_color': DARK_MODE_COLORS['obstacle_color'],
             'background_color': DARK_MODE_COLORS['background_color'],
-            'expanded_node_color': DARK_MODE_COLORS['expanded_node_color'],  # Add this line
+            'expanded_node_color': DARK_MODE_COLORS['expanded_node_color'],
             'maze': generate_maze(DEFAULT_MAZE_SIZE, DEFAULT_OBSTACLE_DENSITY),
         }
         self.settings_updated.emit(default_settings)
@@ -401,10 +364,8 @@ class SettingsMenu(QDialog):
         logging.debug("Saving settings")
         if not self.validateInputs():
             return
-
         start_point = tuple(map(int, self.startPointLineEdit.text().split(',')))
         end_point = tuple(map(int, self.endPointLineEdit.text().split(',')))
-
         settings = {
             'window_width': self.widthSpinBox.value(),
             'window_height': self.heightSpinBox.value(),
@@ -424,4 +385,4 @@ class SettingsMenu(QDialog):
             obstacle_density = float(self.obstacleDensityLineEdit.text())
             settings.update({'obstacle_density': obstacle_density})
         self.settings_updated.emit(settings)
-        self.accept()  # Close the settings menu
+        self.accept()

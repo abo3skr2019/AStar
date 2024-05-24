@@ -1,16 +1,12 @@
-# AStarApplication.py
-
 import sys
-import random
-import numpy as np
-import pyqtgraph as pg
+import logging
+import heapq
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import QTimer
-import heapq
 from SettingsMenu import SettingsMenu
 from Visualizer import Visualizer
 from utils import reconstruct_path
-import logging
+
 
 class AStarApplication:
     """
@@ -45,7 +41,6 @@ class AStarApplication:
         self.visualizer = None
         self.settings_dialog = None  # Reference to settings dialog
 
-
     def _initialize_settings(self, bypass_settings, predefined_settings):
         """
         Initializes the settings for the application.
@@ -55,7 +50,6 @@ class AStarApplication:
             predefined_settings (dict): Predefined settings for the application.
         """
         logging.debug(f"Initializing settings (bypass_settings={bypass_settings})")
-
         self.bypass_settings = bypass_settings  # Store the bypass_settings flag
         if bypass_settings and predefined_settings:
             self.apply_predefined_settings(predefined_settings)
@@ -70,7 +64,6 @@ class AStarApplication:
             settings (dict): Settings for the visualization.
         """
         logging.debug("Starting visualization")
-
         self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings, self.bypass_settings)
         self.visualizer.visualization_complete.connect(self.on_visualization_complete)  # Connect signal
         self.visualizer.visualize()
@@ -80,20 +73,17 @@ class AStarApplication:
         Opens the settings menu for user input.
         """
         logging.debug("Opening settings menu")
-
-
         if self.settings_dialog is not None and self.settings_dialog.isVisible():
             logging.debug("Closing existing settings menu.")
             self.settings_dialog.close()
-            
-        if not self.settings_applied:
-            logging.debug("Creating new settings dialog")
-            self.settings_dialog = SettingsMenu()
-            self.settings_dialog.settings_updated.connect(self.handle_updated_settings)
-            self.settings_dialog.menu_closed.connect(self.on_settings_menu_closed)
-            self.settings_dialog.exec_()
+            return
         else:
             logging.debug("Settings already applied, skipping opening settings menu.")
+        logging.debug("Creating new settings dialog")
+        self.settings_dialog = SettingsMenu()
+        self.settings_dialog.settings_updated.connect(self.handle_updated_settings)
+        self.settings_dialog.menu_closed.connect(self.on_settings_menu_closed)
+        self.settings_dialog.exec_()
 
     def handle_updated_settings(self, settings):
         """
@@ -116,14 +106,8 @@ class AStarApplication:
         """
         Called when the visualization is complete.
         """
-
-        
-        if not self.settings_applied:  # Only reopen if settings were not applied correctly
-            self.open_settings_menu()
-        else:
-            logging.debug("Settings applied, not reopening settings menu.")
-
-        logging.debug("Visualization complete, reopening settings menu.")
+        logging.debug("Visualization complete.")
+        self.open_settings_menu()
 
     def on_settings_menu_closed(self):
         """

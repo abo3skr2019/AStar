@@ -1,5 +1,3 @@
-# utils.py
-
 import random
 import logging
 import datetime
@@ -13,6 +11,7 @@ def setup_logging():
     current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f'{current_time}_application.log'
     logging.basicConfig(filename=filename, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def reconstruct_path(came_from, current, start):
     """
@@ -34,6 +33,7 @@ def reconstruct_path(came_from, current, start):
     path.reverse()
     return path
 
+
 def generate_maze(size, obstacle_density):
     """
     Generates a maze of a given size and obstacle density.
@@ -51,6 +51,7 @@ def generate_maze(size, obstacle_density):
             if random.uniform(0, 1) < obstacle_density:
                 maze[i][j] = 1
     return maze
+
 
 # Call setup_logging to configure logging when this module is imported
 setup_logging()

@@ -1,10 +1,11 @@
 import logging
-from AstarApplication import AStarApplication
 import sys
 import time
 import csv
 import pandas as pd
+from AstarApplication import AStarApplication
 from utils import generate_maze
+
 
 def run_tests():
     """
@@ -16,7 +17,7 @@ def run_tests():
     """
     results = []
     for maze_size in range(10, 110, 10):
-        for obstacle_density in [i/10 for i in range(0, 10)]:
+        for obstacle_density in [i / 10 for i in range(0, 10)]:
             exec_times = []
             for _ in range(100):
                 predefined_settings = {
@@ -24,7 +25,7 @@ def run_tests():
                     'window_height': 600,
                     'Maze_size': maze_size,
                     'start_point': (0, 0),
-                    'end_point': (maze_size-1, maze_size-1),
+                    'end_point': (maze_size - 1, maze_size - 1),
                     'heuristic': 'octile',
                     'start_node_color': '#00FF00',
                     'end_node_color': '#FFD700',
@@ -90,6 +91,7 @@ def main():
     bypass_settings = False
     astar_app = AStarApplication(bypass_settings=bypass_settings, predefined_settings=predefined_settings)
     sys.exit(astar_app.app.exec_())
+
 
 if __name__ == "__main__":
     main()
