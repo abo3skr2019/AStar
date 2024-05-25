@@ -46,8 +46,9 @@ class SettingsMenu(QDialog):
         self.accepted.connect(self.on_accepted)
         self.rejected.connect(self.on_rejected)
 
-    def on_rejected(self): 
-        exit()
+    def on_rejected(self):
+        logging.debug("SettingsMenu on_rejected called")
+        self.menu_closed.emit()
 
     def setup_ui(self):
         self.setupWindowSizeConfig()

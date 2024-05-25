@@ -39,7 +39,8 @@ class AStarApplication:
         self.heuristic = self.octile_distance
         self.settings_applied = False
         self.visualizer = None
-        self.settings_dialog = None  # Reference to settings dialog
+        self.settings_dialog = None
+        logging.debug("Application and default values initialized")
 
     def _initialize_settings(self, bypass_settings, predefined_settings):
         """
@@ -55,6 +56,7 @@ class AStarApplication:
             self.apply_predefined_settings(predefined_settings)
         else:
             self.open_settings_menu()
+        logging.debug("Settings initialization complete")
 
     def start_visualization(self, settings):
         """
@@ -70,9 +72,13 @@ class AStarApplication:
             if self.settings_dialog is not None:
                 logging.debug("Closing settings dialog before starting visualization")
                 self.settings_dialog.close()
+            logging.debug("Out of settings_dialog is not None condition")
 
+            logging.debug("Creating Visualizer object")
             self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings, self.bypass_settings)
+            logging.debug("Visualizer object created")
             self.visualizer.visualization_complete.connect(self.on_visualization_complete)  # Connect signal
+            logging.debug("Visualizer signal connected")
             self.visualizer.visualize()
             logging.debug("Visualization started successfully")
 

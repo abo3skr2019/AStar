@@ -93,4 +93,5 @@ def main():
     sys.exit(astar_app.app.exec_())
 
 if __name__ == "__main__":
+    logging.debug("Executing app event loop")
     main()

@@ -86,7 +86,7 @@ class Visualizer(QObject):
             logging.debug("Starting A* visualization")
             settings_copy = self.settings.copy()
             settings_copy.pop('maze', None)
-            logging.debug(f"\nSettings: {settings_copy}")
+            logging.debug(f"Settings: {settings_copy}")
 
             if self.end_is_obstacle() or self.is_surrounded(self.start) or self.is_surrounded(self.goal):
                 self.handle_invalid_nodes()
@@ -96,7 +96,6 @@ class Visualizer(QObject):
             img_item = pg.ImageItem(image=self.color_maze)
             self.view.addItem(img_item)
             logging.debug("Image item added to view")
-
 
             self.astar_visualized(img_item)
             logging.debug("A* visualization completed")
@@ -168,10 +167,8 @@ class Visualizer(QObject):
     def astar_visualized(self, img_item):
         """
         Visualizes the A* algorithm step by step.
-        
-        Args:
-            img_item (pg.ImageItem): The image item representing the maze.
         """
+        logging.debug("Starting astar_visualized")
         self.update_cell(img_item, self.start, self.start_color)
         self.update_cell(img_item, self.goal, self.end_color)
 
@@ -199,6 +196,7 @@ class Visualizer(QObject):
                 self.update_cell(img_item, self.start, [0, 255, 0])
 
             QApplication.processEvents()
+            logging.debug(f"Processed node: {current}")
 
     def wait_for_user_action(self):
         """
