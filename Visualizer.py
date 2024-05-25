@@ -158,8 +158,8 @@ class Visualizer(QObject):
             path (list): The list of cells representing the path.
         """
         for i in range(len(path) - 1):
-            x = [path[i][0], path[i + 1][0]]
-            y = [path[i][1], path[i + 1][1]]
+            x = [path[i][0], path[i + 1][0]+0.5]
+            y = [path[i][1], path[i + 1][1]+0.5]
             line = pg.PlotDataItem(y, x, pen=pg.mkPen('b', width=2))
             self.view.addItem(line)
             QApplication.processEvents()
