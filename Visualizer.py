@@ -36,11 +36,14 @@ class Visualizer(QObject):
         self.settings = settings
         self.bypass_settings = bypass_settings  # Store the bypass_settings flag
         self.win = pg.GraphicsLayoutWidget(show=True, title="A* Visualization")
+        logging.debug("Visualizer window created")
         self.win.resize(settings['window_width'], settings['window_height'])
         self.view = self.win.addViewBox()
         self.view.setAspectLocked(True)
         self.view.enableAutoRange(True)
         self.color_maze = None
+        logging.debug("Visualizer initialization complete")
+
 
     def end_is_obstacle(self):
         """
@@ -79,18 +82,29 @@ class Visualizer(QObject):
         """
         Starts the visualization of the A* algorithm.
         """
-        logging.debug("Starting A* visualization")
-        logging.debug(f"\nSettings: {self.settings}\nStart node: {self.start}\nEnd node: {self.goal}\nMaze: {self.maze}\n")
+        try:
+            logging.debug("Starting A* visualization")
+            settings_copy = self.settings.copy()
+            settings_copy.pop('maze', None)
+            logging.debug(f"\nSettings: {settings_copy}")
 
-        if self.end_is_obstacle() or self.is_surrounded(self.start) or self.is_surrounded(self.goal):
-            self.handle_invalid_nodes()
-            return
+            if self.end_is_obstacle() or self.is_surrounded(self.start) or self.is_surrounded(self.goal):
+                self.handle_invalid_nodes()
+                return
 
-        self.prepare_color_maze()
-        img_item = pg.ImageItem(image=self.color_maze)
-        self.view.addItem(img_item)
+            self.prepare_color_maze()
+            img_item = pg.ImageItem(image=self.color_maze)
+            self.view.addItem(img_item)
+            logging.debug("Image item added to view")
 
-        self.astar_visualized(img_item)
+
+            self.astar_visualized(img_item)
+            logging.debug("A* visualization completed")
+
+        except Exception as e:
+            logging.error(f"An error occurred in visualizer: {e}")
+            sys.exit(1)
+
 
     def handle_invalid_nodes(self):
         """

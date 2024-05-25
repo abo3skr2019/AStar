@@ -64,9 +64,22 @@ class AStarApplication:
             settings (dict): Settings for the visualization.
         """
         logging.debug("Starting visualization")
-        self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings, self.bypass_settings)
-        self.visualizer.visualization_complete.connect(self.on_visualization_complete)  # Connect signal
-        self.visualizer.visualize()
+        
+        try:
+            # Close the settings dialog if it is open
+            if self.settings_dialog is not None:
+                logging.debug("Closing settings dialog before starting visualization")
+                self.settings_dialog.close()
+
+            self.visualizer = Visualizer(self.maze, self.start, self.end, self.astar, settings, self.bypass_settings)
+            self.visualizer.visualization_complete.connect(self.on_visualization_complete)  # Connect signal
+            self.visualizer.visualize()
+            logging.debug("Visualization started successfully")
+
+        except Exception as e:
+            logging.error(f"An error occurred during visualization: {e}")
+            sys.exit(1)
+
 
     def open_settings_menu(self):
         """
@@ -77,8 +90,11 @@ class AStarApplication:
             logging.debug("Closing existing settings menu.")
             self.settings_dialog.close()
             return
+        elif self.settings_dialog is not None:
+            logging.debug("Closing existing settings menu.")
+            self.settings_dialog.close()
         else:
-            logging.debug("Settings already applied, skipping opening settings menu.")
+            logging.debug("No Existing Settings Dialog.")
         logging.debug("Creating new settings dialog")
         self.settings_dialog = SettingsMenu()
         self.settings_dialog.settings_updated.connect(self.handle_updated_settings)
@@ -93,7 +109,9 @@ class AStarApplication:
             settings (dict): Updated settings.
         """
         logging.debug("Handling updated settings")
-        logging.debug(f"Updated settings: {settings}")
+        settings_copy = settings.copy()
+        settings_copy.pop('maze', None)
+        logging.debug(f"Updated settings: {settings_copy}")
         self.maze = settings['maze']
         self.start = settings['start_point']
         self.end = settings['end_point']

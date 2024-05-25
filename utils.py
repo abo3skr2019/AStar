@@ -8,7 +8,7 @@ def setup_logging():
     Configure the logging settings for the application.
     Logs will be written to 'application.log' with a specific format.
     """
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%I-%M-%S_%p")
     filename = f'{current_time}_application.log'
     logging.basicConfig(filename=filename, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 

@@ -89,9 +89,8 @@ def main():
     }
 
     bypass_settings = False
-    astar_app = AStarApplication(bypass_settings=bypass_settings, predefined_settings=predefined_settings)
+    astar_app = AStarApplication(bypass_settings=bypass_settings, predefined_settings=None)
     sys.exit(astar_app.app.exec_())
-
 
 if __name__ == "__main__":
     main()
